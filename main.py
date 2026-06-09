@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.18"
+VERSION       = "2.19"
 VERSION_DATE  = "09/06/2026"
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 # ────────────────────────────────────────────────────────────────────────────────
