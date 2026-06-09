@@ -16,7 +16,8 @@ app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
 VERSION       = "2.21"
-VERSION_DATE  = "09/06/2026"
+from datetime import date as _date
+VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 # ────────────────────────────────────────────────────────────────────────────────
 
