@@ -14,7 +14,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.26"
+VERSION       = "2.17"
 VERSION_DATE  = "09/06/2026"
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 # ────────────────────────────────────────────────────────────────────────────────
@@ -36,8 +36,7 @@ COULEURS = {
     "rose gold":"Or rose","dark green":"Vert foncé","light blue":"Bleu clair",
     "dark blue":"Bleu foncé","light pink":"Rose clair","dark gray":"Gris foncé",
     "light gray":"Gris clair","off white":"Blanc cassé","dark brown":"Marron foncé",
-    "chocolate":"Chocolat","leopard":"Léopard",
-    "battery":"Pile","usb":"USB"
+    "chocolate":"Chocolat","leopard":"Léopard"
 }
 
 TAILLES = {
@@ -324,8 +323,7 @@ En cas de doute, mettre "adult".
 
 QUANTITÉ INCERTAINE : Si la quantité vendue par unité n'est pas clairement précisée dans les données (titre, description, variants), mets "quantite_incertaine" à true et explique pourquoi dans "alerte_quantite". Si la quantité est claire (ex: "lot de 3", "1 pièce", "set of 2", variants avec quantités), mets false.
 
-- Noms d'options : traduis les noms d'options en français en tenant compte de la catégorie du produit. Ex: "height" → "Taille" pour vêtements/peluches, "Hauteur" pour objets/meubles. "size" → "Taille", "color" / "emitting color" → "Couleur", "weight" → "Poids", "length" → "Longueur", "shoe size" / "shoes size" / "foot size" → "Pointure", "wattage" / "power" → "Puissance", etc.
-- Valeurs de variants : "battery" → "Pile", "USB" reste "USB". Pour les variants combinés comme "battery Multicolore", traduire uniquement la partie anglaise : "battery" → "Pile".
+- Noms d'options : traduis les noms d'options en français en tenant compte de la catégorie du produit. Ex: "height" → "Taille" pour vêtements/peluches, "Hauteur" pour objets/meubles. "size" → "Taille", "color" → "Couleur", "weight" → "Poids", "length" → "Longueur", "shoe size" / "shoes size" / "foot size" → "Pointure", etc.
 
 RÉPONDS UNIQUEMENT avec ce JSON valide, sans texte avant ni après, sans balises markdown :
 {{
@@ -419,9 +417,7 @@ NOMS_OPTIONS = {
     "voltage":"Tension","count":"Quantité","number":"Quantité","pieces":"Pièces",
     "pack size":"Format","version":"Version","edition":"Édition",
     "shoe size":"Pointure","shoes size":"Pointure","foot size":"Pointure",
-    "us size":"Pointure","eu size":"Pointure","uk size":"Pointure",
-    "emitting color":"Couleur","wattage":"Puissance","power":"Puissance",
-    "plug type":"Type de prise","style":"Style","pattern":"Motif"
+    "us size":"Pointure","eu size":"Pointure","uk size":"Pointure"
 }
 
 # Conversions pouces → cm pour les dimensions dans les variants
@@ -782,7 +778,7 @@ def index():
     pre{background:#f0f0f0;padding:12px;border-radius:6px;overflow:auto;font-size:12px;max-height:400px}
     hr{border:none;border-top:1px solid #e0d0c0;margin:14px 0}
     </style></head><body>
-    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.26 — 09/06/2026</span></h1>
+    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.16 — 09/06/2026</span></h1>
     <div class="card warn"><strong>⚡ Mode d'emploi :</strong><br>
     1. Colle ton access token dans le champ ci-dessous<br>
     2. Pour les nouvelles actions : commence toujours par <strong>Simuler</strong> avant d'appliquer</div>
@@ -796,23 +792,15 @@ def index():
     </div>
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
-    <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <a href="#" onclick="run('/fix-gmc-meta?dry=true')" class="btn">👁 Vérifier sexe + tranche d'âge</a>
-    <a href="#" onclick="runFixGmc()" class="btn btn-green">✅ Corriger métadonnées GMC</a>
+    <div class="section-title">Champ Sexe (Google Merchant)</div>
+    <a href="#" onclick="run('/fix-gender')" class="btn btn-green">✅ Corriger le sexe</a>
+    <a href="#" onclick="run('/fix-age-group')" class="btn btn-green">👶 Corriger tranche d'âge</a>
     <hr>
     <div class="section-title">Tags & Audit</div>
     <a href="#" onclick="run('/fix-tags')" class="btn">🏷️ Optimiser tags</a>
     <a href="#" onclick="run('/fix-seo')" class="btn">🔍 Audit SEO</a>
     <a href="#" onclick="exportJSON()" class="btn">📊 Exporter JSON</a>
     <a href="#" onclick="exportCSV()" class="btn">📋 Exporter CSV</a>
-    <div class="section-title" style="margin-top:14px">Recherche dans le catalogue</div>
-    <input type="text" id="search-query" placeholder="Mot ou phrase à rechercher...">
-    <div style="margin:6px 0">
-      <label><input type="checkbox" id="search-titre" checked> Titre</label>&nbsp;&nbsp;
-      <label><input type="checkbox" id="search-desc" checked> Description</label>&nbsp;&nbsp;
-      <label><input type="checkbox" id="search-tags" checked> Tags</label>
-    </div>
-    <a href="#" onclick="runSearch()" class="btn">🔎 Rechercher</a>
     <div class="section-title" style="margin-top:14px">Descriptions — Phrases globales</div>
     <a href="#" onclick="runFixDisclaimersDry()" class="btn">👁 Vérifier disclaimers</a>
     <a href="#" onclick="runFixDisclaimersApply()" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</a>
@@ -935,41 +923,11 @@ def index():
       const l=document.getElementById('batch-limit').value;
       if(!confirm('Appliquer sur '+l+' produits ?')){return;}
       run('/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+getActions()+getBatchExtras());}
-    function runSearch(){
-      const q=document.getElementById('search-query').value.trim();
-      if(!q){alert('Entre un mot à rechercher !');return;}
-      const t=document.getElementById('search-titre').checked?'1':'0';
-      const d=document.getElementById('search-desc').checked?'1':'0';
-      const g=document.getElementById('search-tags').checked?'1':'0';
-      run('/search?q='+encodeURIComponent(q)+'&titre='+t+'&desc='+d+'&tags='+g);}
-    function runFixGmc(){runGmcLot(0);}
-    function runGmcLot(offset){
-      const shop=document.getElementById('shop').value;
-      const token=document.getElementById('token').value;
-      document.getElementById('res').style.display='block';
-      document.getElementById('out').innerText='⏳ Lot GMC offset='+offset+' en cours...';
-      fetch('https://shopify-automation-yi2z.onrender.com/fix-gmc-meta?dry=false&limit=25&offset='+offset+'&shop='+shop+'&token='+token)
-        .then(r=>r.json()).then(d=>{
-          document.getElementById('out').innerText=JSON.stringify(d,null,2);
-          if(d.suite_offset !== null && d.suite_offset !== undefined){
-            setTimeout(()=>runGmcLot(d.suite_offset), 1000);
-          }
-        }).catch(e=>{document.getElementById('out').innerText='Erreur: '+e;});}
     function runFixDisclaimersDry(){
       run('/fix-disclaimers?dry=true');}
-    function runFixDisclaimersApply(){runDisclaimerLot(0);}
-    function runDisclaimerLot(offset){
-      const shop=document.getElementById('shop').value;
-      const token=document.getElementById('token').value;
-      document.getElementById('res').style.display='block';
-      document.getElementById('out').innerText='⏳ Lot offset='+offset+' en cours...';
-      fetch('https://shopify-automation-yi2z.onrender.com/fix-disclaimers?dry=false&limit=50&offset='+offset+'&shop='+shop+'&token='+token)
-        .then(r=>r.json()).then(d=>{
-          document.getElementById('out').innerText=JSON.stringify(d,null,2);
-          if(d.suite_offset !== null && d.suite_offset !== undefined){
-            setTimeout(()=>runDisclaimerLot(d.suite_offset), 1000);
-          }
-        }).catch(e=>{document.getElementById('out').innerText='Erreur: '+e;});}
+    function runFixDisclaimersApply(){
+      if(!confirm('Ajouter les disclaimers manquants sur tous les produits ?')){return;}
+      run('/fix-disclaimers?dry=false');}
     function runAppendDry(){
       const phrase=document.getElementById('append-phrase').value.trim();
       const filtre=document.getElementById('append-filter').value;
@@ -1081,75 +1039,6 @@ def fix_age_group():
             errors += 1
         time.sleep(0.3)
     return jsonify({"action": "fix-age-group", "total": len(products), "updated": updated, "errors": errors, "dry_run": dry})
-
-
-@app.route("/fix-gmc-meta")
-def fix_gmc_meta():
-    """Corrige gender + age_group par lots pour éviter les timeouts."""
-    token  = request.args.get("token", "")
-    shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
-    dry    = request.args.get("dry", "false") == "true"
-    limit  = int(request.args.get("limit", "25"))
-    offset = int(request.args.get("offset", "0"))
-    if not token:
-        return jsonify({"error": "Token manquant"}), 400
-
-    products = get_all_products(token, shop)
-    lot = products[offset:offset + limit]
-    gender_updated = age_updated = gender_ok = age_ok = errors = 0
-
-    for product in lot:
-        pid = product["id"]
-        meta_res  = requests.get(
-            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
-            headers={"X-Shopify-Access-Token": token})
-        metafields = meta_res.json().get("metafields", [])
-
-        a_gender    = any(m.get("key") == "gender"    for m in metafields)
-        a_age_group = any(m.get("key") == "age_group" for m in metafields)
-
-        if a_gender:    gender_ok += 1
-        if a_age_group: age_ok    += 1
-
-        if dry:
-            if not a_gender:    gender_updated += 1
-            if not a_age_group: age_updated    += 1
-            time.sleep(0.05)
-            continue
-
-        if not a_gender:
-            genre = detecter_genre(product.get("title",""), product.get("tags",""))
-            res = requests.post(
-                f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
-                headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
-                json={"metafield": {"namespace": "google", "key": "gender", "value": genre, "type": "single_line_text_field"}})
-            if res.status_code in [200, 201]: gender_updated += 1
-            else: errors += 1
-
-        if not a_age_group:
-            res = requests.post(
-                f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
-                headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
-                json={"metafield": {"namespace": "google", "key": "age_group", "value": "adult", "type": "single_line_text_field"}})
-            if res.status_code in [200, 201]: age_updated += 1
-            else: errors += 1
-
-        time.sleep(0.1)
-
-    suite_offset = offset + limit if (offset + limit) < len(products) else None
-    return jsonify({
-        "action": "fix-gmc-meta",
-        "dry_run": dry,
-        "total": len(products),
-        "lot_traite": f"{offset} → {offset + len(lot)}",
-        "gender_deja_ok": gender_ok,
-        "gender_updated": gender_updated,
-        "age_group_deja_ok": age_ok,
-        "age_group_updated": age_updated,
-        "errors": errors,
-        "suite_offset": suite_offset,
-        "statut": "simulation" if dry else ("appliqué — relancer avec offset=" + str(suite_offset) if suite_offset else "appliqué — terminé")
-    })
 
 
 @app.route("/fix-prices")
@@ -1330,31 +1219,16 @@ DISCLAIMER_DIMENSIONS = '<p><em>Les dimensions et tailles indiquées sont donné
 @app.route("/fix-disclaimers")
 def fix_disclaimers():
     """Vérifie et ajoute les deux phrases disclaimer sur tous les produits qui ne les ont pas."""
-    token  = request.args.get("token", "")
-    shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
-    dry    = request.args.get("dry", "true") == "true"
-    limit  = int(request.args.get("limit", "50"))  # max produits par appel
-    offset = int(request.args.get("offset", "0"))
+    token = request.args.get("token", "")
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "true") == "true"
     if not token:
         return jsonify({"error": "Token manquant"}), 400
 
     products = get_all_products(token, shop)
-    # Filtrer d'abord ceux qui ont besoin d'une mise à jour
-    a_traiter = []
-    for p in products:
-        body = p.get("body_html", "") or ""
-        if not body:
-            continue
-        a_couleur    = "variations d'affichage selon les" in body.lower()
-        a_dimensions = "processus de fabrication et des méthodes de mesure" in body.lower()
-        if not (a_couleur and a_dimensions):
-            a_traiter.append(p)
-
-    total_a_traiter = len(a_traiter)
-    lot = a_traiter[offset:offset + limit]
     updated, skipped, sans_couleur, sans_dimensions = 0, 0, [], []
 
-    for p in lot:
+    for p in products:
         pid   = str(p["id"])
         titre = p.get("title", "")[:60]
         body  = p.get("body_html", "") or ""
@@ -1362,13 +1236,12 @@ def fix_disclaimers():
             skipped += 1
             continue
 
-        a_couleur     = "variations d'affichage selon les" in body.lower()
-        a_dimensions  = "processus de fabrication et des méthodes de mesure" in body.lower()
+        a_couleur     = "prise de vue" in body.lower()
+        a_dimensions  = "titre indicatif" in body.lower() or "à titre indicatif" in body.lower()
         if a_couleur and a_dimensions:
             skipped += 1
             continue
 
-        separateur = '\n<p style="border-top:2px solid #C4803A;margin:20px 0 12px 0;padding:0;font-size:0"></p>\n'
         ajouts = ""
         if not a_couleur:
             ajouts += DISCLAIMER_COULEUR
@@ -1381,22 +1254,19 @@ def fix_disclaimers():
             requests.put(
                 f"https://{shop}/admin/api/2026-04/products/{pid}.json",
                 headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
-                json={"product": {"id": int(pid), "body_html": body + separateur + ajouts}})
-            time.sleep(0.1)
+                json={"product": {"id": int(pid), "body_html": body + ajouts}})
+            time.sleep(0.3)
         updated += 1
 
-    suite_offset = offset + limit if (offset + limit) < total_a_traiter else None
     return jsonify({
         "action": "fix-disclaimers",
         "dry_run": dry,
-        "total_catalogue": len(products),
-        "total_a_corriger": total_a_traiter,
-        "lot_traite": f"{offset} → {offset + len(lot)}",
+        "total": len(products),
+        "skipped_deja_ok": skipped,
         "updated": updated,
         "sans_disclaimer_couleur": len(sans_couleur),
         "sans_disclaimer_dimensions": len(sans_dimensions),
-        "suite_offset": suite_offset,
-        "statut": "simulation" if dry else "appliqué — relancer avec offset=" + str(suite_offset) if suite_offset else "appliqué — terminé"
+        "statut": "simulation" if dry else "appliqué"
     })
 
 
@@ -1450,81 +1320,6 @@ def append_to_all():
         "updated": updated,
         "skipped_deja_present_ou_vide": skipped,
         "statut": "simulation" if dry else "appliqué"
-    })
-
-
-@app.route("/search")
-def search_products():
-    """Recherche un mot ou une phrase dans le catalogue — titre, description, tags."""
-    token  = request.args.get("token", "")
-    shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
-    query  = request.args.get("q", "").strip().lower()
-    in_titre = request.args.get("titre", "1") == "1"
-    in_desc  = request.args.get("desc",  "1") == "1"
-    in_tags  = request.args.get("tags",  "1") == "1"
-
-    if not token:
-        return jsonify({"error": "Token manquant"}), 400
-    if not query:
-        return jsonify({"error": "Paramètre q manquant"}), 400
-
-    products = get_all_products(token, shop)
-    resultats = []
-
-    for p in products:
-        pid    = str(p["id"])
-        titre  = p.get("title", "") or ""
-        desc   = p.get("body_html", "") or ""
-        tags   = p.get("tags", "") or ""
-        statut = p.get("status", "")
-        prix   = p.get("variants", [{}])[0].get("price", "") if p.get("variants") else ""
-
-        trouve_dans = []
-        if in_titre and query in titre.lower():   trouve_dans.append("titre")
-        if in_desc  and query in desc.lower():    trouve_dans.append("description")
-        if in_tags  and query in tags.lower():    trouve_dans.append("tags")
-
-        if trouve_dans:
-            resultats.append({
-                "id":          pid,
-                "titre":       titre[:80],
-                "statut":      statut,
-                "prix":        prix,
-                "trouve_dans": trouve_dans,
-                "url_admin":   f"https://{shop}/admin/products/{pid}",
-                "url_boutique": f"https://{shop.replace('.myshopify.com','')}.com/products/{p.get('handle','')}"
-            })
-
-    return jsonify({
-        "query": query,
-        "total_catalogue": len(products),
-        "resultats": len(resultats),
-        "produits": resultats
-    })
-
-
-@app.route("/debug-product")
-def debug_product():
-    """Diagnostic rapide d'un produit — body_html, disclaimers, longueur."""
-    token = request.args.get("token", "")
-    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
-    pid   = request.args.get("id", "")
-    if not token or not pid:
-        return jsonify({"error": "token et id requis"}), 400
-    res = requests.get(
-        f"https://{shop}/admin/api/2026-04/products/{pid}.json",
-        headers={"X-Shopify-Access-Token": token})
-    p = res.json().get("product", {})
-    body = p.get("body_html", "") or ""
-    return jsonify({
-        "id": pid,
-        "titre": p.get("title","")[:80],
-        "statut": p.get("status",""),
-        "body_longueur": len(body),
-        "body_vide": not body,
-        "a_disclaimer_couleur": "variations d'affichage selon les" in body.lower(),
-        "a_disclaimer_dimensions": "processus de fabrication et des méthodes de mesure" in body.lower(),
-        "body_apercu": body[:300] if body else "(vide)"
     })
 
 
@@ -1723,7 +1518,10 @@ def optimize_product():
         if fiche.get("description_html"):
             updates["body_html"] = fiche["description_html"]
         if fiche.get("tags_fr"):
-            updates["tags"] = fiche["tags_fr"]
+            tags_nouveaux = fiche["tags_fr"]
+            if "handle-fr-set" in product.get("tags", ""):
+                tags_nouveaux = tags_nouveaux + ", handle-fr-set"
+            updates["tags"] = tags_nouveaux
         if fiche.get("meta_title"):
             updates["metafields_global_title_tag"] = fiche["meta_title"]
         if fiche.get("meta_description"):
@@ -1808,10 +1606,21 @@ def optimize_product():
         age_group  = fiche.get("age_group", "adult")
         added_mf   = construire_metafields(matiere, couleur, token, shop, pid, age_group, titre_orig, fiche.get("tags_fr",""), genre_claude=fiche.get("gender","Unisex"))
         result["metafields_ajoutes"] = added_mf
-        # Handle/URL automatique
-        if fiche.get("titre_fr"):
+        # Handle/URL : seulement à la première optimisation (protège les URLs indexées par Google)
+        handle_deja_fr = "handle-fr-set" in product.get("tags", "")
+        if fiche.get("titre_fr") and not handle_deja_fr:
             new_handle = mettre_a_jour_handle(token, shop, pid, fiche["titre_fr"])
             result["handle"] = new_handle
+            # Marquer le handle comme protégé pour les prochaines optimisations
+            tags_actuels = updates.get("tags", product.get("tags", ""))
+            if "handle-fr-set" not in tags_actuels:
+                requests.put(
+                    f"https://{shop}/admin/api/2026-04/products/{pid}.json",
+                    headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                    json={"product": {"id": int(pid), "tags": tags_actuels + ", handle-fr-set"}})
+        elif fiche.get("titre_fr"):
+            result["handle"] = product.get("handle", "")
+            result["handle_protege"] = True
         # Collection : force_collection prioritaire sur détection automatique
         collections = get_collections(token, shop)
         noms_colls = []
@@ -1939,7 +1748,11 @@ def optimize_batch():
                 updates = {"id": pid}
                 if fiche.get("titre_fr"):        updates["title"]     = fiche["titre_fr"]
                 if fiche.get("description_html"):updates["body_html"] = fiche["description_html"]
-                if fiche.get("tags_fr"):         updates["tags"]      = fiche["tags_fr"]
+                if fiche.get("tags_fr"):
+                    tags_nouveaux = fiche["tags_fr"]
+                    if "handle-fr-set" in product.get("tags", ""):
+                        tags_nouveaux = tags_nouveaux + ", handle-fr-set"
+                    updates["tags"] = tags_nouveaux
                 if fiche.get("meta_title"):
                     updates["metafields_global_title_tag"]       = fiche["meta_title"]
                 if fiche.get("meta_description"):
@@ -2014,8 +1827,20 @@ def optimize_batch():
                     time.sleep(0.2)
                 # Métadonnées
                 construire_metafields(fiche.get("matiere",""), fiche.get("couleur",""), token, shop, pid, fiche.get("age_group","adult"), titre, fiche.get("tags_fr",""), genre_claude=fiche.get("gender","Unisex"))
-                if fiche.get("titre_fr"):
+                # Handle/URL : seulement à la première optimisation (protège les URLs indexées par Google)
+                handle_deja_fr = "handle-fr-set" in product.get("tags", "")
+                if fiche.get("titre_fr") and not handle_deja_fr:
                     mettre_a_jour_handle(token, shop, pid, fiche["titre_fr"])
+                    # Marquer le handle comme protégé pour les prochaines optimisations
+                    tags_actuels = updates.get("tags", product.get("tags", ""))
+                    if "handle-fr-set" not in tags_actuels:
+                        requests.put(
+                            f"https://{shop}/admin/api/2026-04/products/{pid}.json",
+                            headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                            json={"product": {"id": int(pid), "tags": tags_actuels + ", handle-fr-set"}})
+                    item["handle_nouveau"] = True
+                else:
+                    item["handle_protege"] = True
                 collections = get_collections(token, shop)
                 noms_colls = []
                 tags_menu = []
