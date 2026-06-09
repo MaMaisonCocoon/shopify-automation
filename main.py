@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.23"
+VERSION       = "2.21"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -910,7 +910,9 @@ def index():
     <a href="#" onclick="runBatchApply()" class="btn btn-green">🚀 Appliquer batch</a>
     </div>
 
-    <div class="card" id="res"><h2>📋 Résultat</h2><pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
+    <div class="card" id="res"><h2>📋 Résultat</h2>
+    <button onclick="try{document.getElementById('out').innerText='✅ JS fonctionne — cliquez une action ci-dessus';}catch(e){alert('Erreur: '+e)}" style="background:#eee;border:1px solid #ccc;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-bottom:8px">🧪 Tester le JS</button>
+    <pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
     window.onerror=function(msg,src,line){
