@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.22"
+VERSION       = "2.23"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -934,10 +934,10 @@ def index():
       out.innerText='⏳ Vérification sexe en cours...';
       fetch('/fix-gender?dry=true&shop='+shop)
         .then(r=>r.json()).then(d1=>{
-          out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Vérification tranche d\'âge...';
+          out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Vérification tranche d-age...';
           fetch('/fix-age-group?dry=true&shop='+shop)
             .then(r=>r.json()).then(d2=>{
-              out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d\'âge :\n'+JSON.stringify(d2,null,2);
+              out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d-age :\n'+JSON.stringify(d2,null,2);
             }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
         }).catch(e=>{out.innerText='Erreur gender: '+e;});}
 
@@ -948,10 +948,10 @@ def index():
       out.innerText='⏳ Correction sexe en cours...';
       fetch('/fix-gender?shop='+shop)
         .then(r=>r.json()).then(d1=>{
-          out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Correction tranche d\'âge...';
+          out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Correction tranche d-age...';
           fetch('/fix-age-group?shop='+shop)
             .then(r=>r.json()).then(d2=>{
-              out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d\'âge corrigée :\n'+JSON.stringify(d2,null,2);
+              out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d-age corrigée :\n'+JSON.stringify(d2,null,2);
             }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
         }).catch(e=>{out.innerText='Erreur gender: '+e;});}
 
