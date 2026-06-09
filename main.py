@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.3"
+VERSION       = "2.21.4"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -836,17 +836,17 @@ def index():
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
     <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <button onclick="runGMCDry()" class="btn">🔎 Vérifier sexe + tranche d'âge</button>
-    <button onclick="runGMCApply()" class="btn btn-green">✅ Corriger métadonnées GMC</button>
+    <button id="btn-gmc-dry" class="btn">🔎 Vérifier sexe + tranche d'âge</button>
+    <button id="btn-gmc-apply" class="btn btn-green">✅ Corriger métadonnées GMC</button>
     <hr>
     <div class="section-title">Tags & Audit</div>
-    <button onclick="run('/fix-tags')" class="btn">🏷️ Optimiser tags</button>
-    <button onclick="run('/fix-seo')" class="btn">🔍 Audit SEO</button>
-    <button onclick="exportJSON()" class="btn">📊 Exporter JSON</button>
-    <button onclick="exportCSV()" class="btn">📋 Exporter CSV</button>
+    <button id="btn-fix-tags" class="btn">🏷️ Optimiser tags</button>
+    <button id="btn-fix-seo" class="btn">🔍 Audit SEO</button>
+    <button id="btn-export-json" class="btn">📊 Exporter JSON</button>
+    <button id="btn-export-csv" class="btn">📋 Exporter CSV</button>
     <div class="section-title" style="margin-top:14px">Descriptions — Phrases globales</div>
-    <button onclick="runFixDisclaimersDry()" class="btn">👁 Vérifier disclaimers</button>
-    <button onclick="runFixDisclaimersApply()" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</button>
+    <button id="btn-disc-dry" class="btn">👁 Vérifier disclaimers</button>
+    <button id="btn-disc-apply" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</button>
     <div style="margin:10px 0 6px 0">
       <input type="text" id="append-phrase" placeholder="Phrase à ajouter à toutes les fiches..." style="width:100%;margin-bottom:6px">
       <select id="append-filter" style="width:auto;margin:0 8px 0 0">
@@ -854,8 +854,8 @@ def index():
         <option value="active">Publiés uniquement</option>
         <option value="drafts">Brouillons uniquement</option>
       </select>
-      <button onclick="runAppendDry()" class="btn">👁 Simuler</button>
-      <button onclick="runAppendApply()" class="btn btn-green">✅ Appliquer à tous</button>
+      <button id="btn-append-dry" class="btn">👁 Simuler</button>
+      <button id="btn-append-apply" class="btn btn-green">✅ Appliquer à tous</button>
     </div>
     </div>
 
@@ -877,8 +877,8 @@ def index():
         <input type="text" id="tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button onclick="runOptimizeDry()" class="btn btn-blue">👁 Simuler (dry run)</button>
-    <button onclick="runOptimizeApply()" class="btn btn-green">✅ Appliquer sur ce produit</button>
+    <button id="btn-opt-dry" class="btn btn-blue">👁 Simuler (dry run)</button>
+    <button id="btn-opt-apply" class="btn btn-green">✅ Appliquer sur ce produit</button>
     <hr>
     <div class="section-title">Batch — plusieurs produits</div>
     <div style="margin:8px 0">
@@ -906,8 +906,8 @@ def index():
         <input type="text" id="batch-tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button onclick="runBatchDry()" class="btn btn-blue">👁 Simuler batch</button>
-    <button onclick="runBatchApply()" class="btn btn-green">🚀 Appliquer batch</button>
+    <button id="btn-batch-dry" class="btn btn-blue">👁 Simuler batch</button>
+    <button id="btn-batch-apply" class="btn btn-green">🚀 Appliquer batch</button>
     </div>
 
     <div class="card" id="res"><h2>📋 Résultat</h2>
@@ -916,112 +916,121 @@ def index():
     <pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
-    window.onerror=function(msg,src,line){
-      const r=document.getElementById('res');
-      const o=document.getElementById('out');
-      if(r&&o){r.style.display='block';o.innerText='❌ Erreur JS (ligne '+line+'): '+msg;}
-      return false;};
-    document.getElementById('shop').addEventListener('input',function(){
-      const btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;});
-    function getActions(){
-      const a=[];
-      if(document.getElementById('act-desc').checked) a.push('description');
-      if(document.getElementById('act-var').checked)  a.push('variants');
-      if(document.getElementById('act-meta').checked) a.push('metafields');
-      return a.join(',');
-    }
-    function runGMCDry(){
-      const shop=document.getElementById('shop').value;
-      const out=document.getElementById('out');
-      
-      out.innerText='⏳ Vérification sexe en cours...';
-      fetch('/fix-gender?dry=true&shop='+shop)
-        .then(r=>r.json()).then(d1=>{
-          out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Vérification tranche d-age...';
-          fetch('/fix-age-group?dry=true&shop='+shop)
-            .then(r=>r.json()).then(d2=>{
-              out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d-age :\n'+JSON.stringify(d2,null,2);
-            }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
-        }).catch(e=>{out.innerText='Erreur gender: '+e;});}
+    document.addEventListener('DOMContentLoaded', function() {
+      var out = document.getElementById('out');
+      var shop = function(){ return document.getElementById('shop').value; };
 
-    function runGMCApply(){
-      const shop=document.getElementById('shop').value;
-      const out=document.getElementById('out');
-      
-      out.innerText='⏳ Correction sexe en cours...';
-      fetch('/fix-gender?shop='+shop)
-        .then(r=>r.json()).then(d1=>{
-          out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Correction tranche d-age...';
-          fetch('/fix-age-group?shop='+shop)
-            .then(r=>r.json()).then(d2=>{
-              out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d-age corrigée :\n'+JSON.stringify(d2,null,2);
-            }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
-        }).catch(e=>{out.innerText='Erreur gender: '+e;});}
+      function disp(msg){ out.style.color='#333'; out.style.fontStyle='normal'; out.innerText=msg; }
 
-    function run(url){
-      const shop=document.getElementById('shop').value;
-      
-      document.getElementById('out').innerText='⏳ Traitement en cours... (30-60s possible)';
-      const sep=url.includes('?')?'&':'?';
-      fetch(url+sep+'shop='+shop)
-        .then(r=>r.json()).then(d=>{document.getElementById('out').innerText=JSON.stringify(d,null,2);})
-        .catch(e=>{document.getElementById('out').innerText='Erreur: '+e;});}
-    function getOptimizeExtras(){
-      const fc=document.getElementById('force-collection').value.trim();
-      const te=document.getElementById('tags-extra').value.trim();
-      let extras='';
-      if(fc) extras+='&force_collection='+encodeURIComponent(fc);
-      if(te) extras+='&tags_extra='+encodeURIComponent(te);
-      return extras;
-    }
-    function getBatchExtras(){
-      const fc=document.getElementById('batch-force-collection').value.trim();
-      const te=document.getElementById('batch-tags-extra').value.trim();
-      let extras='';
-      if(fc) extras+='&force_collection='+encodeURIComponent(fc);
-      if(te) extras+='&tags_extra='+encodeURIComponent(te);
-      return extras;
-    }
-    function runOptimizeDry(){
-      const pid=document.getElementById('product-id').value.trim();
-      if(!pid){alert('Entre un ID produit Shopify !');return;}
-      run('/optimize-product?id='+pid+'&dry=true&actions='+getActions()+getOptimizeExtras());}
-    function runOptimizeApply(){
-      const pid=document.getElementById('product-id').value.trim();
-      if(!pid){alert('Entre un ID produit Shopify !');return;}
-      if(!confirm('Appliquer les modifications sur ce produit ?')){return;}
-      run('/optimize-product?id='+pid+'&dry=false&actions='+getActions()+getOptimizeExtras());}
-    function runBatchDry(){
-      const f=document.getElementById('batch-filter').value;
-      const l=document.getElementById('batch-limit').value;
-      run('/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+getActions()+getBatchExtras());}
-    function runBatchApply(){
-      const f=document.getElementById('batch-filter').value;
-      const l=document.getElementById('batch-limit').value;
-      if(!confirm('Appliquer sur '+l+' produits ?')){return;}
-      run('/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+getActions()+getBatchExtras());}
-    function runFixDisclaimersDry(){
-      run('/fix-disclaimers?dry=true');}
-    function runFixDisclaimersApply(){
-      if(!confirm('Ajouter les disclaimers manquants sur tous les produits ?')){return;}
-      run('/fix-disclaimers?dry=false');}
-    function runAppendDry(){
-      const phrase=document.getElementById('append-phrase').value.trim();
-      const filtre=document.getElementById('append-filter').value;
-      if(!phrase){alert('Entre une phrase à ajouter.');return;}
-      run('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase));}
-    function runAppendApply(){
-      const phrase=document.getElementById('append-phrase').value.trim();
-      const filtre=document.getElementById('append-filter').value;
-      if(!phrase){alert('Entre une phrase à ajouter.');return;}
-      if(!confirm('Ajouter cette phrase à tous les produits ('+filtre+') ?')){return;}
-      run('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase));}
-    function exportJSON(){
-      const shop=document.getElementById('shop').value;
-      window.open('/export-products?format=json&shop='+shop,'_blank');}
-    function exportCSV(){
-      const shop=document.getElementById('shop').value;
-      window.open('/export-products?format=csv&shop='+shop,'_blank');}
+      function callAPI(url){
+        disp('Traitement en cours... (30-60s possible)');
+        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+        fetch(url + sep + 'shop=' + shop())
+          .then(function(r){ return r.json(); })
+          .then(function(d){ disp(JSON.stringify(d, null, 2)); })
+          .catch(function(e){ disp('Erreur: ' + e); });
+      }
+
+      function getActions(){
+        var a=[];
+        var d=document.getElementById('act-desc'); if(d&&d.checked) a.push('description');
+        var v=document.getElementById('act-var');  if(v&&v.checked) a.push('variants');
+        var m=document.getElementById('act-meta'); if(m&&m.checked) a.push('metafields');
+        return a.join(',');
+      }
+
+      function getOptExtras(){
+        var fc=document.getElementById('force-collection'); fc=fc?fc.value.trim():'';
+        var te=document.getElementById('tags-extra'); te=te?te.value.trim():'';
+        return (fc?'&force_collection='+encodeURIComponent(fc):'')+(te?'&tags_extra='+encodeURIComponent(te):'');
+      }
+
+      function getBatchExtras(){
+        var fc=document.getElementById('batch-force-collection'); fc=fc?fc.value.trim():'';
+        var te=document.getElementById('batch-tags-extra'); te=te?te.value.trim():'';
+        return (fc?'&force_collection='+encodeURIComponent(fc):'')+(te?'&tags_extra='+encodeURIComponent(te):'');
+      }
+
+      var b = function(id){ return document.getElementById(id); };
+
+      if(b('btn-gmc-dry'))    b('btn-gmc-dry').addEventListener('click', function(){
+        disp('Verification en cours...');
+        fetch('/fix-gender?dry=true&shop='+shop()).then(function(r){return r.json();}).then(function(d1){
+          disp('Sexe:\n'+JSON.stringify(d1,null,2)+'\n\nVerification tranche age...');
+          fetch('/fix-age-group?dry=true&shop='+shop()).then(function(r){return r.json();}).then(function(d2){
+            disp('Sexe:\n'+JSON.stringify(d1,null,2)+'\n\nTranche age:\n'+JSON.stringify(d2,null,2));
+          }).catch(function(e){disp('Erreur age-group: '+e);});
+        }).catch(function(e){disp('Erreur gender: '+e);});
+      });
+
+      if(b('btn-gmc-apply'))  b('btn-gmc-apply').addEventListener('click', function(){
+        disp('Correction en cours...');
+        fetch('/fix-gender?shop='+shop()).then(function(r){return r.json();}).then(function(d1){
+          disp('Sexe corrige:\n'+JSON.stringify(d1,null,2)+'\n\nCorrection tranche age...');
+          fetch('/fix-age-group?shop='+shop()).then(function(r){return r.json();}).then(function(d2){
+            disp('Sexe corrige:\n'+JSON.stringify(d1,null,2)+'\n\nTranche age corrigee:\n'+JSON.stringify(d2,null,2));
+          }).catch(function(e){disp('Erreur age-group: '+e);});
+        }).catch(function(e){disp('Erreur gender: '+e);});
+      });
+
+      if(b('btn-fix-tags'))   b('btn-fix-tags').addEventListener('click',   function(){ callAPI('/fix-tags'); });
+      if(b('btn-fix-seo'))    b('btn-fix-seo').addEventListener('click',    function(){ callAPI('/fix-seo'); });
+      if(b('btn-disc-dry'))   b('btn-disc-dry').addEventListener('click',   function(){ callAPI('/fix-disclaimers?dry=true'); });
+      if(b('btn-disc-apply')) b('btn-disc-apply').addEventListener('click', function(){
+        if(!confirm('Ajouter les disclaimers manquants ?')) return;
+        callAPI('/fix-disclaimers?dry=false');
+      });
+
+      if(b('btn-export-json')) b('btn-export-json').addEventListener('click', function(){
+        window.open('/export-products?format=json&shop='+shop(),'_blank');
+      });
+      if(b('btn-export-csv'))  b('btn-export-csv').addEventListener('click', function(){
+        window.open('/export-products?format=csv&shop='+shop(),'_blank');
+      });
+
+      if(b('btn-opt-dry')) b('btn-opt-dry').addEventListener('click', function(){
+        var pid=document.getElementById('product-id').value.trim();
+        if(!pid){alert('Entre un ID produit Shopify !');return;}
+        callAPI('/optimize-product?id='+pid+'&dry=true&actions='+getActions()+getOptExtras());
+      });
+      if(b('btn-opt-apply')) b('btn-opt-apply').addEventListener('click', function(){
+        var pid=document.getElementById('product-id').value.trim();
+        if(!pid){alert('Entre un ID produit Shopify !');return;}
+        if(!confirm('Appliquer sur ce produit ?')) return;
+        callAPI('/optimize-product?id='+pid+'&dry=false&actions='+getActions()+getOptExtras());
+      });
+
+      if(b('btn-batch-dry')) b('btn-batch-dry').addEventListener('click', function(){
+        var f=document.getElementById('batch-filter').value;
+        var l=document.getElementById('batch-limit').value;
+        callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+getActions()+getBatchExtras());
+      });
+      if(b('btn-batch-apply')) b('btn-batch-apply').addEventListener('click', function(){
+        var f=document.getElementById('batch-filter').value;
+        var l=document.getElementById('batch-limit').value;
+        if(!confirm('Appliquer sur '+l+' produits ?')) return;
+        callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+getActions()+getBatchExtras());
+      });
+
+      if(b('btn-append-dry')) b('btn-append-dry').addEventListener('click', function(){
+        var phrase=document.getElementById('append-phrase').value.trim();
+        var filtre=document.getElementById('append-filter').value;
+        if(!phrase){alert('Entre une phrase.');return;}
+        callAPI('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase));
+      });
+      if(b('btn-append-apply')) b('btn-append-apply').addEventListener('click', function(){
+        var phrase=document.getElementById('append-phrase').value.trim();
+        var filtre=document.getElementById('append-filter').value;
+        if(!phrase){alert('Entre une phrase.');return;}
+        if(!confirm('Appliquer a tous les produits ?')) return;
+        callAPI('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase));
+      });
+
+      var shopEl=document.getElementById('shop');
+      if(shopEl) shopEl.addEventListener('input',function(){
+        var btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;
+      });
+    });
     </script></body></html>"""
     resp = make_response(html)
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
