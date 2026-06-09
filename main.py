@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.20"
+VERSION       = "2.21"
 VERSION_DATE  = "09/06/2026"
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 # ────────────────────────────────────────────────────────────────────────────────
@@ -496,18 +496,15 @@ MOTS_ENFANT = ["kids","kid","child","children","baby","infant","toddler","enfant
                "bebe","garcon","fille","jouet","doudou","peluche","scolaire"]
 
 def detecter_genre(titre, tags=""):
-    """Detecte le genre a partir du titre et des tags"""
+    """Detecte le genre a partir du titre et des tags — valeurs Google valides : male, female, unisex"""
     texte = (titre + " " + tags).lower()
     score_femme = sum(1 for m in MOTS_FEMME if m in texte)
     score_homme = sum(1 for m in MOTS_HOMME if m in texte)
-    score_enfant = sum(1 for m in MOTS_ENFANT if m in texte)
-    if score_enfant > 0:
-        return "Unisex Kids"
     if score_femme > score_homme and score_femme > 0:
-        return "Female"
+        return "female"
     if score_homme > score_femme and score_homme > 0:
-        return "Male"
-    return "Unisex"
+        return "male"
+    return "unisex"
 
 def get_collections(token, shop):
     collections = []
@@ -915,6 +912,11 @@ def index():
     <div class="card" id="res" style="display:none"><h2>📋 Résultat</h2><pre id="out"></pre></div>
 
     <script>
+    window.onerror=function(msg,src,line){
+      const r=document.getElementById('res');
+      const o=document.getElementById('out');
+      if(r&&o){r.style.display='block';o.innerText='❌ Erreur JS (ligne '+line+'): '+msg;}
+      return false;};
     document.getElementById('shop').addEventListener('input',function(){
       const btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;});
     function getActions(){
@@ -1062,14 +1064,24 @@ def fix_gender():
         meta_res = requests.get(f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
             headers={"X-Shopify-Access-Token": token})
         metafields = meta_res.json().get("metafields", [])
-        if any(m.get("key") == "gender" for m in metafields):
+        gender_mf = next((m for m in metafields if m.get("key") == "gender"), None)
+        valeurs_valides = ["male", "female", "unisex"]
+        if gender_mf and gender_mf.get("value", "").lower() in valeurs_valides:
             continue
         if dry:
             updated += 1
             continue
-        res = requests.post(f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
-            headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
-            json={"metafield": {"namespace": "google", "key": "gender", "value": detecter_genre(product.get("title",""), product.get("tags","")), "type": "single_line_text_field"}})
+        new_value = detecter_genre(product.get("title",""), product.get("tags",""))
+        if gender_mf:
+            # Mettre à jour la valeur invalide existante
+            res = requests.put(f"https://{shop}/admin/api/2026-04/products/{pid}/metafields/{gender_mf['id']}.json",
+                headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                json={"metafield": {"id": gender_mf["id"], "value": new_value, "type": "single_line_text_field"}})
+        else:
+            # Créer le metafield manquant
+            res = requests.post(f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+                headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                json={"metafield": {"namespace": "google", "key": "gender", "value": new_value, "type": "single_line_text_field"}})
         if res.status_code in [200, 201]:
             updated += 1
         else:
