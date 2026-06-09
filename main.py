@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.2"
+VERSION       = "2.21.3"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -911,7 +911,8 @@ def index():
     </div>
 
     <div class="card" id="res"><h2>📋 Résultat</h2>
-    <button onclick="try{document.getElementById('out').innerText='✅ JS fonctionne — cliquez une action ci-dessus';}catch(e){alert('Erreur: '+e)}" style="background:#eee;border:1px solid #ccc;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-bottom:8px">🧪 Tester le JS</button>
+    <button onclick="try{document.getElementById('out').innerText='✅ JS fonctionne — cliquez une action ci-dessus';}catch(e){alert('Erreur: '+e)}" style="background:#eee;border:1px solid #ccc;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-bottom:4px">🧪 Tester le JS</button>
+    <button onclick="document.getElementById('out').style.color='#333';document.getElementById('out').style.fontStyle='normal';document.getElementById('out').innerText='Envoi requete...';fetch('/fix-seo?shop=ma-maison-cocoon.myshopify.com').then(function(r){return r.text();}).then(function(t){document.getElementById('out').innerText=t.substring(0,500);}).catch(function(e){document.getElementById('out').innerText='ERREUR FETCH: '+e;})" style="background:#eee;border:1px solid #ccc;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-bottom:8px">🔬 Tester requête serveur</button>
     <pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
