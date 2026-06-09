@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21"
+VERSION       = "2.22"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -910,7 +910,7 @@ def index():
     <a href="#" onclick="runBatchApply()" class="btn btn-green">🚀 Appliquer batch</a>
     </div>
 
-    <div class="card" id="res" style="display:none"><h2>📋 Résultat</h2><pre id="out"></pre></div>
+    <div class="card" id="res"><h2>📋 Résultat</h2><pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
     window.onerror=function(msg,src,line){
@@ -930,7 +930,7 @@ def index():
     function runGMCDry(){
       const shop=document.getElementById('shop').value;
       const out=document.getElementById('out');
-      document.getElementById('res').style.display='block';
+      
       out.innerText='⏳ Vérification sexe en cours...';
       fetch('/fix-gender?dry=true&shop='+shop)
         .then(r=>r.json()).then(d1=>{
@@ -944,7 +944,7 @@ def index():
     function runGMCApply(){
       const shop=document.getElementById('shop').value;
       const out=document.getElementById('out');
-      document.getElementById('res').style.display='block';
+      
       out.innerText='⏳ Correction sexe en cours...';
       fetch('/fix-gender?shop='+shop)
         .then(r=>r.json()).then(d1=>{
@@ -957,7 +957,7 @@ def index():
 
     function run(url){
       const shop=document.getElementById('shop').value;
-      document.getElementById('res').style.display='block';
+      
       document.getElementById('out').innerText='⏳ Traitement en cours... (30-60s possible)';
       const sep=url.includes('?')?'&':'?';
       fetch(url+sep+'shop='+shop)
