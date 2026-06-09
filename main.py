@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21"
+VERSION       = "2.21.2"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -836,17 +836,17 @@ def index():
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
     <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <a href="#" onclick="runGMCDry()" class="btn">🔎 Vérifier sexe + tranche d'âge</a>
-    <a href="#" onclick="runGMCApply()" class="btn btn-green">✅ Corriger métadonnées GMC</a>
+    <button onclick="runGMCDry()" class="btn">🔎 Vérifier sexe + tranche d'âge</button>
+    <button onclick="runGMCApply()" class="btn btn-green">✅ Corriger métadonnées GMC</button>
     <hr>
     <div class="section-title">Tags & Audit</div>
-    <a href="#" onclick="run('/fix-tags')" class="btn">🏷️ Optimiser tags</a>
-    <a href="#" onclick="run('/fix-seo')" class="btn">🔍 Audit SEO</a>
-    <a href="#" onclick="exportJSON()" class="btn">📊 Exporter JSON</a>
-    <a href="#" onclick="exportCSV()" class="btn">📋 Exporter CSV</a>
+    <button onclick="run('/fix-tags')" class="btn">🏷️ Optimiser tags</button>
+    <button onclick="run('/fix-seo')" class="btn">🔍 Audit SEO</button>
+    <button onclick="exportJSON()" class="btn">📊 Exporter JSON</button>
+    <button onclick="exportCSV()" class="btn">📋 Exporter CSV</button>
     <div class="section-title" style="margin-top:14px">Descriptions — Phrases globales</div>
-    <a href="#" onclick="runFixDisclaimersDry()" class="btn">👁 Vérifier disclaimers</a>
-    <a href="#" onclick="runFixDisclaimersApply()" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</a>
+    <button onclick="runFixDisclaimersDry()" class="btn">👁 Vérifier disclaimers</button>
+    <button onclick="runFixDisclaimersApply()" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</button>
     <div style="margin:10px 0 6px 0">
       <input type="text" id="append-phrase" placeholder="Phrase à ajouter à toutes les fiches..." style="width:100%;margin-bottom:6px">
       <select id="append-filter" style="width:auto;margin:0 8px 0 0">
@@ -854,8 +854,8 @@ def index():
         <option value="active">Publiés uniquement</option>
         <option value="drafts">Brouillons uniquement</option>
       </select>
-      <a href="#" onclick="runAppendDry()" class="btn">👁 Simuler</a>
-      <a href="#" onclick="runAppendApply()" class="btn btn-green">✅ Appliquer à tous</a>
+      <button onclick="runAppendDry()" class="btn">👁 Simuler</button>
+      <button onclick="runAppendApply()" class="btn btn-green">✅ Appliquer à tous</button>
     </div>
     </div>
 
@@ -877,8 +877,8 @@ def index():
         <input type="text" id="tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <a href="#" onclick="runOptimizeDry()" class="btn btn-blue">👁 Simuler (dry run)</a>
-    <a href="#" onclick="runOptimizeApply()" class="btn btn-green">✅ Appliquer sur ce produit</a>
+    <button onclick="runOptimizeDry()" class="btn btn-blue">👁 Simuler (dry run)</button>
+    <button onclick="runOptimizeApply()" class="btn btn-green">✅ Appliquer sur ce produit</button>
     <hr>
     <div class="section-title">Batch — plusieurs produits</div>
     <div style="margin:8px 0">
@@ -906,8 +906,8 @@ def index():
         <input type="text" id="batch-tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <a href="#" onclick="runBatchDry()" class="btn btn-blue">👁 Simuler batch</a>
-    <a href="#" onclick="runBatchApply()" class="btn btn-green">🚀 Appliquer batch</a>
+    <button onclick="runBatchDry()" class="btn btn-blue">👁 Simuler batch</button>
+    <button onclick="runBatchApply()" class="btn btn-green">🚀 Appliquer batch</button>
     </div>
 
     <div class="card" id="res"><h2>📋 Résultat</h2>
