@@ -837,9 +837,9 @@ def index():
     </div>
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
-    <div class="section-title">Champ Sexe (Google Merchant)</div>
-    <a href="#" onclick="run('/fix-gender')" class="btn btn-green">✅ Corriger le sexe</a>
-    <a href="#" onclick="run('/fix-age-group')" class="btn btn-green">👶 Corriger tranche d'âge</a>
+    <div class="section-title">Métadonnées Google Merchant (GMC)</div>
+    <a href="#" onclick="runGMCDry()" class="btn">🔎 Vérifier sexe + tranche d'âge</a>
+    <a href="#" onclick="runGMCApply()" class="btn btn-green">✅ Corriger métadonnées GMC</a>
     <hr>
     <div class="section-title">Tags & Audit</div>
     <a href="#" onclick="run('/fix-tags')" class="btn">🏷️ Optimiser tags</a>
@@ -924,6 +924,34 @@ def index():
       if(document.getElementById('act-meta').checked) a.push('metafields');
       return a.join(',');
     }
+    function runGMCDry(){
+      const shop=document.getElementById('shop').value;
+      const out=document.getElementById('out');
+      document.getElementById('res').style.display='block';
+      out.innerText='⏳ Vérification sexe en cours...';
+      fetch('/fix-gender?dry=true&shop='+shop)
+        .then(r=>r.json()).then(d1=>{
+          out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Vérification tranche d\'âge...';
+          fetch('/fix-age-group?dry=true&shop='+shop)
+            .then(r=>r.json()).then(d2=>{
+              out.innerText='✅ Sexe :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d\'âge :\n'+JSON.stringify(d2,null,2);
+            }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
+        }).catch(e=>{out.innerText='Erreur gender: '+e;});}
+
+    function runGMCApply(){
+      const shop=document.getElementById('shop').value;
+      const out=document.getElementById('out');
+      document.getElementById('res').style.display='block';
+      out.innerText='⏳ Correction sexe en cours...';
+      fetch('/fix-gender?shop='+shop)
+        .then(r=>r.json()).then(d1=>{
+          out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n⏳ Correction tranche d\'âge...';
+          fetch('/fix-age-group?shop='+shop)
+            .then(r=>r.json()).then(d2=>{
+              out.innerText='✅ Sexe corrigé :\n'+JSON.stringify(d1,null,2)+'\n\n✅ Tranche d\'âge corrigée :\n'+JSON.stringify(d2,null,2);
+            }).catch(e=>{out.innerText+='\\nErreur age-group: '+e;});
+        }).catch(e=>{out.innerText='Erreur gender: '+e;});}
+
     function run(url){
       const shop=document.getElementById('shop').value;
       document.getElementById('res').style.display='block';
