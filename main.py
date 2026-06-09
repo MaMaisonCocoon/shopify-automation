@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.4"
+VERSION       = "2.21.5"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -916,7 +916,7 @@ def index():
     <pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
       var out = document.getElementById('out');
       var shop = function(){ return document.getElementById('shop').value; };
 
@@ -951,9 +951,9 @@ def index():
         return (fc?'&force_collection='+encodeURIComponent(fc):'')+(te?'&tags_extra='+encodeURIComponent(te):'');
       }
 
-      var b = function(id){ return document.getElementById(id); };
+      function on(id, fn){ var el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
 
-      if(b('btn-gmc-dry'))    b('btn-gmc-dry').addEventListener('click', function(){
+      on('btn-gmc-dry', function(){
         disp('Verification en cours...');
         fetch('/fix-gender?dry=true&shop='+shop()).then(function(r){return r.json();}).then(function(d1){
           disp('Sexe:\n'+JSON.stringify(d1,null,2)+'\n\nVerification tranche age...');
@@ -963,7 +963,7 @@ def index():
         }).catch(function(e){disp('Erreur gender: '+e);});
       });
 
-      if(b('btn-gmc-apply'))  b('btn-gmc-apply').addEventListener('click', function(){
+      on('btn-gmc-apply', function(){
         disp('Correction en cours...');
         fetch('/fix-gender?shop='+shop()).then(function(r){return r.json();}).then(function(d1){
           disp('Sexe corrige:\n'+JSON.stringify(d1,null,2)+'\n\nCorrection tranche age...');
@@ -973,52 +973,45 @@ def index():
         }).catch(function(e){disp('Erreur gender: '+e);});
       });
 
-      if(b('btn-fix-tags'))   b('btn-fix-tags').addEventListener('click',   function(){ callAPI('/fix-tags'); });
-      if(b('btn-fix-seo'))    b('btn-fix-seo').addEventListener('click',    function(){ callAPI('/fix-seo'); });
-      if(b('btn-disc-dry'))   b('btn-disc-dry').addEventListener('click',   function(){ callAPI('/fix-disclaimers?dry=true'); });
-      if(b('btn-disc-apply')) b('btn-disc-apply').addEventListener('click', function(){
+      on('btn-fix-tags',    function(){ callAPI('/fix-tags'); });
+      on('btn-fix-seo',     function(){ callAPI('/fix-seo'); });
+      on('btn-disc-dry',    function(){ callAPI('/fix-disclaimers?dry=true'); });
+      on('btn-disc-apply',  function(){
         if(!confirm('Ajouter les disclaimers manquants ?')) return;
         callAPI('/fix-disclaimers?dry=false');
       });
+      on('btn-export-json', function(){ window.open('/export-products?format=json&shop='+shop(),'_blank'); });
+      on('btn-export-csv',  function(){ window.open('/export-products?format=csv&shop='+shop(),'_blank'); });
 
-      if(b('btn-export-json')) b('btn-export-json').addEventListener('click', function(){
-        window.open('/export-products?format=json&shop='+shop(),'_blank');
-      });
-      if(b('btn-export-csv'))  b('btn-export-csv').addEventListener('click', function(){
-        window.open('/export-products?format=csv&shop='+shop(),'_blank');
-      });
-
-      if(b('btn-opt-dry')) b('btn-opt-dry').addEventListener('click', function(){
+      on('btn-opt-dry', function(){
         var pid=document.getElementById('product-id').value.trim();
         if(!pid){alert('Entre un ID produit Shopify !');return;}
         callAPI('/optimize-product?id='+pid+'&dry=true&actions='+getActions()+getOptExtras());
       });
-      if(b('btn-opt-apply')) b('btn-opt-apply').addEventListener('click', function(){
+      on('btn-opt-apply', function(){
         var pid=document.getElementById('product-id').value.trim();
         if(!pid){alert('Entre un ID produit Shopify !');return;}
         if(!confirm('Appliquer sur ce produit ?')) return;
         callAPI('/optimize-product?id='+pid+'&dry=false&actions='+getActions()+getOptExtras());
       });
-
-      if(b('btn-batch-dry')) b('btn-batch-dry').addEventListener('click', function(){
+      on('btn-batch-dry', function(){
         var f=document.getElementById('batch-filter').value;
         var l=document.getElementById('batch-limit').value;
         callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+getActions()+getBatchExtras());
       });
-      if(b('btn-batch-apply')) b('btn-batch-apply').addEventListener('click', function(){
+      on('btn-batch-apply', function(){
         var f=document.getElementById('batch-filter').value;
         var l=document.getElementById('batch-limit').value;
         if(!confirm('Appliquer sur '+l+' produits ?')) return;
         callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+getActions()+getBatchExtras());
       });
-
-      if(b('btn-append-dry')) b('btn-append-dry').addEventListener('click', function(){
+      on('btn-append-dry', function(){
         var phrase=document.getElementById('append-phrase').value.trim();
         var filtre=document.getElementById('append-filter').value;
         if(!phrase){alert('Entre une phrase.');return;}
         callAPI('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase));
       });
-      if(b('btn-append-apply')) b('btn-append-apply').addEventListener('click', function(){
+      on('btn-append-apply', function(){
         var phrase=document.getElementById('append-phrase').value.trim();
         var filtre=document.getElementById('append-filter').value;
         if(!phrase){alert('Entre une phrase.');return;}
@@ -1030,7 +1023,8 @@ def index():
       if(shopEl) shopEl.addEventListener('input',function(){
         var btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;
       });
-    });
+
+    })();
     </script></body></html>"""
     resp = make_response(html)
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
