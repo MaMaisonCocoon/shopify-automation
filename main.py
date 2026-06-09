@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.9"
+VERSION       = "2.21"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -24,7 +24,7 @@ VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 API_KEY           = os.environ.get("SHOPIFY_API_KEY", "")
 API_SECRET        = os.environ.get("SHOPIFY_API_SECRET", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-SHOPIFY_TOKEN     = os.environ.get("SHOPIFY_TOKEN", "")
+SHOPIFY_TOKEN     = os.environ.get("SHOPIFY_TOKEN", "").strip()
 APP_PASSWORD      = os.environ.get("APP_PASSWORD", "")
 app.secret_key    = os.environ.get("SECRET_KEY", "changeme-please-set-in-render")
 SCOPES            = "read_products,write_products,read_inventory,write_inventory,read_product_listings,write_product_listings"
@@ -838,17 +838,17 @@ def index():
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
     <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <button id="btn-gmc-dry" class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Verification...';var s=document.getElementById('shop').value;fetch('/fix-gender?dry=true&shop='+s).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier sexe + tranche d'âge</button>
-    <button id="btn-gmc-apply" class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Correction...';var s=document.getElementById('shop').value;fetch('/fix-gender?shop='+s).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Corriger métadonnées GMC</button>
+    <button id="btn-gmc-dry" class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Verification...';var s=document.getElementById('shop').value;fetch('/fix-gender?dry=true&shop='+s).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier sexe + tranche d'âge</button>
+    <button id="btn-gmc-apply" class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Correction...';var s=document.getElementById('shop').value;fetch('/fix-gender?shop='+s).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Corriger métadonnées GMC</button>
     <hr>
     <div class="section-title">Tags & Audit</div>
-    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-tags?shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🏷️ Optimiser tags</button>
-    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-seo?shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔍 Audit SEO</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-tags?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🏷️ Optimiser tags</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-seo?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔍 Audit SEO</button>
     <button class="btn" onclick="window.open('/export-products?format=json&shop='+document.getElementById('shop').value,'_blank')">📊 Exporter JSON</button>
     <button class="btn" onclick="window.open('/export-products?format=csv&shop='+document.getElementById('shop').value,'_blank')">📋 Exporter CSV</button>
     <div class="section-title" style="margin-top:14px">Descriptions — Phrases globales</div>
-    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=true&shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Vérifier disclaimers</button>
-    <button class="btn" style="background:#C4803A" onclick="if(!confirm('Ajouter disclaimers ?'))return;(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=false&shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔧 Ajouter disclaimers manquants</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=true&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Vérifier disclaimers</button>
+    <button class="btn" style="background:#C4803A" onclick="if(!confirm('Ajouter disclaimers ?'))return;(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=false&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔧 Ajouter disclaimers manquants</button>
     <div style="margin:10px 0 6px 0">
       <input type="text" id="append-phrase" placeholder="Phrase à ajouter à toutes les fiches..." style="width:100%;margin-bottom:6px">
       <select id="append-filter" style="width:auto;margin:0 8px 0 0">
@@ -856,8 +856,8 @@ def index():
         <option value="active">Publiés uniquement</option>
         <option value="drafts">Brouillons uniquement</option>
       </select>
-      <button class="btn" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler</button>
-      <button class="btn btn-green" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}if(!confirm('Appliquer ?'))return;var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer à tous</button>
+      <button class="btn" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler</button>
+      <button class="btn btn-green" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}if(!confirm('Appliquer ?'))return;var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer à tous</button>
     </div>
     </div>
 
@@ -879,8 +879,8 @@ def index():
         <input type="text" id="tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button class="btn btn-blue" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler (dry run)</button>
-    <button class="btn btn-green" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}if(!confirm('Appliquer ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer sur ce produit</button>
+    <button class="btn btn-blue" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler (dry run)</button>
+    <button class="btn btn-green" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}if(!confirm('Appliquer ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer sur ce produit</button>
     <hr>
     <div class="section-title">Batch — plusieurs produits</div>
     <div style="margin:8px 0">
@@ -908,8 +908,8 @@ def index():
         <input type="text" id="batch-tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button class="btn btn-blue" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler batch</button>
-    <button class="btn btn-green" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;if(!confirm('Appliquer sur '+l+' produits ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.text();}).then(function(t){if(t.indexOf('<')===0){o.style.color='red';o.innerText='Session expiree — rechargez la page et reconnectez-vous (/logout)';return;}try{o.innerText=JSON.stringify(JSON.parse(t),null,2);}catch(e){o.innerText=t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🚀 Appliquer batch</button>
+    <button class="btn btn-blue" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler batch</button>
+    <button class="btn btn-green" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;if(!confirm('Appliquer sur '+l+' produits ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🚀 Appliquer batch</button>
     </div>
 
     <div class="card" id="res"><h2>📋 Résultat</h2>
@@ -962,7 +962,10 @@ def fix_gender():
     dry   = request.args.get("dry", "false") == "true"
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     updated = errors = 0
     for product in products:
         pid = product["id"]
@@ -1001,7 +1004,10 @@ def fix_age_group():
     dry   = request.args.get("dry", "false") == "true"
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     updated = errors = 0
     for product in products:
         pid = product["id"]
@@ -1034,7 +1040,10 @@ def fix_prices():
     dry    = request.args.get("dry", "true") == "true"
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     updated = skipped = 0
     for product in products:
         pid = product["id"]
@@ -1077,7 +1086,10 @@ def fix_tags():
         "bambou":    ["bambou", "naturel", "écologique"],
         "diffuseur": ["diffuseur", "aromathérapie", "bien-être"],
     }
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     updated = 0
     for product in products:
         pid   = product["id"]
@@ -1107,7 +1119,10 @@ def fix_seo():
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     # Mots anglais courants pour détecter contenu en anglais
     mots_anglais = ["the","and","for","with","you","your","this","that","have",
@@ -1210,7 +1225,10 @@ def fix_disclaimers():
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     updated, skipped, sans_couleur, sans_dimensions = 0, 0, [], []
 
     for p in products:
@@ -1269,7 +1287,10 @@ def append_to_all():
     if not phrase:
         return jsonify({"error": "Paramètre 'phrase' manquant"}), 400
 
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     if filtre == "active":
         products = [p for p in products if p.get("status") == "active"]
     elif filtre == "drafts":
@@ -1317,7 +1338,10 @@ def export_products():
     format = request.args.get("format", "json")
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     export = []
     for p in products:
@@ -1685,7 +1709,10 @@ def optimize_batch():
     if not token:
         return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
-    products = get_all_products(token, shop)
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     if filtre == "drafts":
         cibles = [p for p in products if p.get("status") == "draft"]
