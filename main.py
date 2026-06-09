@@ -1,4 +1,5 @@
-from flask import Flask, request, redirect, jsonify
+from flask import Flask, request, redirect, jsonify, session, make_response
+from functools import wraps
 import requests
 import os
 import time
@@ -14,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.17"
+VERSION       = "2.18"
 VERSION_DATE  = "09/06/2026"
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 # ────────────────────────────────────────────────────────────────────────────────
@@ -22,7 +23,52 @@ VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
 API_KEY           = os.environ.get("SHOPIFY_API_KEY", "")
 API_SECRET        = os.environ.get("SHOPIFY_API_SECRET", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+SHOPIFY_TOKEN     = os.environ.get("SHOPIFY_TOKEN", "")
+APP_PASSWORD      = os.environ.get("APP_PASSWORD", "")
+app.secret_key    = os.environ.get("SECRET_KEY", "changeme-please-set-in-render")
 SCOPES            = "read_products,write_products,read_inventory,write_inventory,read_product_listings,write_product_listings"
+
+# ─── AUTH ───────────────────────────────────────────────────────────────────────
+
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("auth"):
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = ""
+    if request.method == "POST":
+        if request.form.get("password") == APP_PASSWORD and APP_PASSWORD:
+            session["auth"] = True
+            return redirect("/")
+        error = '<p style="color:#c0392b;margin:8px 0">Mot de passe incorrect.</p>'
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Connexion – Ma Maison Cocoon™</title>
+    <style>
+      body{{font-family:Georgia,serif;background:#FDF6F0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}}
+      .box{{background:white;padding:40px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);width:320px;text-align:center}}
+      h1{{color:#8B4513;font-size:1.2rem;margin-bottom:20px}}
+      input{{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;font-size:1rem}}
+      button{{background:#8B4513;color:white;border:none;padding:10px 24px;border-radius:6px;font-size:1rem;cursor:pointer;width:100%;margin-top:8px}}
+      button:hover{{background:#6B3410}}
+    </style></head><body>
+    <div class="box">
+      <h1>🕯️ Ma Maison Cocoon™<br><span style="font-weight:normal;font-size:0.9rem">Automation – Accès sécurisé</span></h1>
+      {error}
+      <form method="POST">
+        <input type="password" name="password" placeholder="Mot de passe" autofocus>
+        <button type="submit">Connexion</button>
+      </form>
+    </div></body></html>"""
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 # ─── TRADUCTIONS ───────────────────────────────────────────────────────────────
 
@@ -759,6 +805,7 @@ def construire_metafields(matiere, couleur, token, shop, pid, age_group="adult",
 # ─── INTERFACE HTML ─────────────────────────────────────────────────────────────
 
 @app.route("/")
+@require_auth
 def index():
     from flask import make_response
     html = """<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
@@ -778,17 +825,15 @@ def index():
     pre{background:#f0f0f0;padding:12px;border-radius:6px;overflow:auto;font-size:12px;max-height:400px}
     hr{border:none;border-top:1px solid #e0d0c0;margin:14px 0}
     </style></head><body>
-    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.16 — 09/06/2026</span></h1>
+    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.18 — 09/06/2026</span></h1>
     <div class="card warn"><strong>⚡ Mode d'emploi :</strong><br>
-    1. Colle ton access token dans le champ ci-dessous<br>
-    2. Pour les nouvelles actions : commence toujours par <strong>Simuler</strong> avant d'appliquer</div>
+    Pour les nouvelles actions : commence toujours par <strong>Simuler</strong> avant d'appliquer
+    &nbsp;|&nbsp; <a href="/logout" style="color:#8B4513">🔒 Déconnexion</a></div>
 
     <div class="card"><h2>🔑 Configuration</h2>
     <label>URL Shopify :</label>
     <input type="text" id="shop" value="ma-maison-cocoon.myshopify.com">
-    <label>Access Token :</label>
-    <input type="text" id="token" placeholder="shpat_...">
-    <a id="oauthBtn" href="/auth?shop=ma-maison-cocoon.myshopify.com" class="btn">🔐 Se connecter via OAuth</a>
+    <div style="margin-top:10px;font-size:0.82rem;color:#888">🔐 Token Shopify expiré ou révoqué ? <a href="/auth" style="color:#8B4513;font-weight:bold">Générer un nouveau token via OAuth</a> — puis mettre à jour la variable <code>SHOPIFY_TOKEN</code> dans Render.</div>
     </div>
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
@@ -881,12 +926,10 @@ def index():
     }
     function run(url){
       const shop=document.getElementById('shop').value;
-      const token=document.getElementById('token').value;
-      if(!token){alert('Entre ton access token !');return;}
       document.getElementById('res').style.display='block';
       document.getElementById('out').innerText='⏳ Traitement en cours... (30-60s possible)';
       const sep=url.includes('?')?'&':'?';
-      fetch('https://shopify-automation-yi2z.onrender.com'+url+sep+'shop='+shop+'&token='+token)
+      fetch(url+sep+'shop='+shop)
         .then(r=>r.json()).then(d=>{document.getElementById('out').innerText=JSON.stringify(d,null,2);})
         .catch(e=>{document.getElementById('out').innerText='Erreur: '+e;});}
     function getOptimizeExtras(){
@@ -941,14 +984,10 @@ def index():
       run('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase));}
     function exportJSON(){
       const shop=document.getElementById('shop').value;
-      const token=document.getElementById('token').value;
-      if(!token){alert('Entre ton access token !');return;}
-      window.open('https://shopify-automation-yi2z.onrender.com/export-products?format=json&shop='+shop+'&token='+token,'_blank');}
+      window.open('/export-products?format=json&shop='+shop,'_blank');}
     function exportCSV(){
       const shop=document.getElementById('shop').value;
-      const token=document.getElementById('token').value;
-      if(!token){alert('Entre ton access token !');return;}
-      window.open('https://shopify-automation-yi2z.onrender.com/export-products?format=csv&shop='+shop+'&token='+token,'_blank');}
+      window.open('/export-products?format=csv&shop='+shop,'_blank');}
     </script></body></html>"""
     resp = make_response(html)
     resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -981,12 +1020,13 @@ def callback():
     <br><a href="/" style="background:#8B4513;color:white;padding:10px 20px;border-radius:6px;text-decoration:none">← Retour</a>"""
 
 @app.route("/fix-gender")
+@require_auth
 def fix_gender():
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     dry   = request.args.get("dry", "false") == "true"
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     products = get_all_products(token, shop)
     updated = errors = 0
     for product in products:
@@ -1010,12 +1050,13 @@ def fix_gender():
     return jsonify({"action": "fix-gender", "total": len(products), "updated": updated, "errors": errors, "dry_run": dry})
 
 @app.route("/fix-age-group")
+@require_auth
 def fix_age_group():
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     dry   = request.args.get("dry", "false") == "true"
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     products = get_all_products(token, shop)
     updated = errors = 0
     for product in products:
@@ -1042,13 +1083,14 @@ def fix_age_group():
 
 
 @app.route("/fix-prices")
+@require_auth
 def fix_prices():
     token  = request.args.get("token", "")
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     margin = float(request.args.get("margin", "2.5"))
     dry    = request.args.get("dry", "true") == "true"
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     products = get_all_products(token, shop)
     updated = skipped = 0
     for product in products:
@@ -1076,12 +1118,13 @@ def fix_prices():
                     "updated": updated, "skipped": skipped, "dry_run": dry})
 
 @app.route("/fix-tags")
+@require_auth
 def fix_tags():
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     dry   = request.args.get("dry", "false") == "true"
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     rules = {
         "tapis":     ["tapis", "décoration", "salon cocooning"],
         "bougie":    ["bougie", "rituel", "bien-être", "cocooning"],
@@ -1115,12 +1158,13 @@ def fix_tags():
     return jsonify({"action": "fix-tags", "total": len(products), "updated": updated, "dry_run": dry})
 
 @app.route("/fix-seo")
+@require_auth
 def fix_seo():
     import re
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
     products = get_all_products(token, shop)
 
@@ -1217,13 +1261,14 @@ DISCLAIMER_COULEUR = "<p><em>Remarque : En raison des conditions de prise de vue
 DISCLAIMER_DIMENSIONS = '<p><em>Les dimensions et tailles indiquées sont données à titre indicatif. De légères variations peuvent exister en raison du processus de fabrication et des méthodes de mesure.</em></p>'
 
 @app.route("/fix-disclaimers")
+@require_auth
 def fix_disclaimers():
     """Vérifie et ajoute les deux phrases disclaimer sur tous les produits qui ne les ont pas."""
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     dry   = request.args.get("dry", "true") == "true"
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
     products = get_all_products(token, shop)
     updated, skipped, sans_couleur, sans_dimensions = 0, 0, [], []
@@ -1271,6 +1316,7 @@ def fix_disclaimers():
 
 
 @app.route("/append-to-all")
+@require_auth
 def append_to_all():
     """Ajoute un bloc HTML personnalisé à la fin de toutes les descriptions."""
     token  = request.args.get("token", "")
@@ -1280,7 +1326,7 @@ def append_to_all():
     filtre = request.args.get("filter", "all")  # all | active | drafts
 
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     if not phrase:
         return jsonify({"error": "Paramètre 'phrase' manquant"}), 400
 
@@ -1324,6 +1370,7 @@ def append_to_all():
 
 
 @app.route("/export-products")
+@require_auth
 def export_products():
     import csv, io
     from flask import Response
@@ -1331,7 +1378,7 @@ def export_products():
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     format = request.args.get("format", "json")
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     products = get_all_products(token, shop)
 
     export = []
@@ -1372,9 +1419,10 @@ def version():
     return jsonify({"version": VERSION, "date": VERSION_DATE, "label": VERSION_LABEL})
 
 @app.route("/optimize-form")
+@require_auth
 def optimize_form():
     """Interface web pour lancer une optimisation produit sans construire l'URL à la main"""
-    token = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     html = f"""<!DOCTYPE html>
 <html lang="fr">
@@ -1409,9 +1457,6 @@ def optimize_form():
 <label>ID Produit Shopify *</label>
 <input type="text" id="pid" placeholder="ex: 8742631948..." />
 
-<label>Token Shopify *</label>
-<input type="text" id="token" value="{token}" placeholder="shpat_..." />
-
 <label>Boutique</label>
 <input type="text" id="shop" value="{shop}" />
 
@@ -1435,14 +1480,13 @@ def optimize_form():
 <script>
 async function lancer() {{
   const pid   = document.getElementById('pid').value.trim();
-  const token = document.getElementById('token').value.trim();
   const shop  = document.getElementById('shop').value.trim();
   const fc    = document.getElementById('force_col').value.trim();
   const te    = document.getElementById('tags_extra').value.trim();
   const dry   = document.getElementById('dry').checked;
 
-  if (!pid || !token) {{
-    alert('ID produit et token sont obligatoires.');
+  if (!pid) {{
+    alert('ID produit obligatoire.');
     return;
   }}
 
@@ -1450,7 +1494,7 @@ async function lancer() {{
   div.style.display = 'block';
   div.innerHTML = '⏳ Optimisation en cours...';
 
-  let url = `/optimize-product?id=${{pid}}&token=${{token}}&shop=${{shop}}&dry=${{dry}}`;
+  let url = `/optimize-product?id=${{pid}}&shop=${{shop}}&dry=${{dry}}`;
   if (fc)  url += `&force_collection=${{encodeURIComponent(fc)}}`;
   if (te)  url += `&tags_extra=${{encodeURIComponent(te)}}`;
 
@@ -1473,6 +1517,7 @@ async function lancer() {{
 # ─── NOUVELLES ROUTES — OPTIMISATION FICHES PRODUITS ───────────────────────────
 
 @app.route("/optimize-product")
+@require_auth
 def optimize_product():
     token           = request.args.get("token", "")
     shop            = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1482,7 +1527,7 @@ def optimize_product():
     tags_extra      = request.args.get("tags_extra", "").strip()         # tags supplémentaires à forcer
 
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
     if not pid:
         return jsonify({"error": "ID produit manquant"}), 400
 
@@ -1691,6 +1736,7 @@ def optimize_product():
 
 
 @app.route("/optimize-batch")
+@require_auth
 def optimize_batch():
     token   = request.args.get("token", "")
     shop    = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1702,7 +1748,7 @@ def optimize_batch():
     tags_extra       = request.args.get("tags_extra", "").strip()
 
     if not token:
-        return jsonify({"error": "Token manquant"}), 400
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
 
     products = get_all_products(token, shop)
 
