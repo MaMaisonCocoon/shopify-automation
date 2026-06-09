@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.5"
+VERSION       = "2.21.6"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -836,17 +836,17 @@ def index():
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
     <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <button id="btn-gmc-dry" class="btn">🔎 Vérifier sexe + tranche d'âge</button>
-    <button id="btn-gmc-apply" class="btn btn-green">✅ Corriger métadonnées GMC</button>
+    <button id="btn-gmc-dry" class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Verification...';var s=document.getElementById('shop').value;fetch('/fix-gender?dry=true&shop='+s).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier sexe + tranche d'âge</button>
+    <button id="btn-gmc-apply" class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Correction...';var s=document.getElementById('shop').value;fetch('/fix-gender?shop='+s).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Corriger métadonnées GMC</button>
     <hr>
     <div class="section-title">Tags & Audit</div>
-    <button id="btn-fix-tags" class="btn">🏷️ Optimiser tags</button>
-    <button id="btn-fix-seo" class="btn">🔍 Audit SEO</button>
-    <button id="btn-export-json" class="btn">📊 Exporter JSON</button>
-    <button id="btn-export-csv" class="btn">📋 Exporter CSV</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-tags?shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">🏷️ Optimiser tags</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-seo?shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">🔍 Audit SEO</button>
+    <button class="btn" onclick="window.open('/export-products?format=json&shop='+document.getElementById('shop').value,'_blank')">📊 Exporter JSON</button>
+    <button class="btn" onclick="window.open('/export-products?format=csv&shop='+document.getElementById('shop').value,'_blank')">📋 Exporter CSV</button>
     <div class="section-title" style="margin-top:14px">Descriptions — Phrases globales</div>
-    <button id="btn-disc-dry" class="btn">👁 Vérifier disclaimers</button>
-    <button id="btn-disc-apply" class="btn" style="background:#C4803A">🔧 Ajouter disclaimers manquants</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=true&shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Vérifier disclaimers</button>
+    <button class="btn" style="background:#C4803A" onclick="if(!confirm('Ajouter disclaimers ?'))return;(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-disclaimers?dry=false&shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">🔧 Ajouter disclaimers manquants</button>
     <div style="margin:10px 0 6px 0">
       <input type="text" id="append-phrase" placeholder="Phrase à ajouter à toutes les fiches..." style="width:100%;margin-bottom:6px">
       <select id="append-filter" style="width:auto;margin:0 8px 0 0">
@@ -854,8 +854,8 @@ def index():
         <option value="active">Publiés uniquement</option>
         <option value="drafts">Brouillons uniquement</option>
       </select>
-      <button id="btn-append-dry" class="btn">👁 Simuler</button>
-      <button id="btn-append-apply" class="btn btn-green">✅ Appliquer à tous</button>
+      <button class="btn" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler</button>
+      <button class="btn btn-green" onclick="(function(){var phrase=document.getElementById('append-phrase').value.trim();if(!phrase){alert('Entre une phrase');return;}if(!confirm('Appliquer ?'))return;var filtre=document.getElementById('append-filter').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase)+'&shop='+document.getElementById('shop').value).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer à tous</button>
     </div>
     </div>
 
@@ -877,8 +877,8 @@ def index():
         <input type="text" id="tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button id="btn-opt-dry" class="btn btn-blue">👁 Simuler (dry run)</button>
-    <button id="btn-opt-apply" class="btn btn-green">✅ Appliquer sur ce produit</button>
+    <button class="btn btn-blue" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler (dry run)</button>
+    <button class="btn btn-green" onclick="(function(){var pid=document.getElementById('product-id').value.trim();if(!pid){alert('ID requis');return;}if(!confirm('Appliquer ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('force-collection').value.trim();var te=document.getElementById('tags-extra').value.trim();var url='/optimize-product?id='+pid+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Appliquer sur ce produit</button>
     <hr>
     <div class="section-title">Batch — plusieurs produits</div>
     <div style="margin:8px 0">
@@ -906,8 +906,8 @@ def index():
         <input type="text" id="batch-tags-extra" placeholder="ex: sommeil, cadeau" style="margin:0">
       </div>
     </div>
-    <button id="btn-batch-dry" class="btn btn-blue">👁 Simuler batch</button>
-    <button id="btn-batch-apply" class="btn btn-green">🚀 Appliquer batch</button>
+    <button class="btn btn-blue" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">👁 Simuler batch</button>
+    <button class="btn btn-green" onclick="(function(){var f=document.getElementById('batch-filter').value;var l=document.getElementById('batch-limit').value;if(!confirm('Appliquer sur '+l+' produits ?'))return;var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';var a=[];var d=document.getElementById('act-desc');if(d&&d.checked)a.push('description');var v=document.getElementById('act-var');if(v&&v.checked)a.push('variants');var m=document.getElementById('act-meta');if(m&&m.checked)a.push('metafields');var fc=document.getElementById('batch-force-collection').value.trim();var te=document.getElementById('batch-tags-extra').value.trim();var url='/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+a.join(',')+'&shop='+document.getElementById('shop').value;if(fc)url+='&force_collection='+encodeURIComponent(fc);if(te)url+='&tags_extra='+encodeURIComponent(te);fetch(url).then(function(r){return r.json();}).then(function(d){o.innerText=JSON.stringify(d,null,2);}).catch(function(e){o.innerText='Err:'+e;});})()">🚀 Appliquer batch</button>
     </div>
 
     <div class="card" id="res"><h2>📋 Résultat</h2>
@@ -916,114 +916,11 @@ def index():
     <pre id="out" style="color:#aaa;font-style:italic">En attente d'une action...</pre></div>
 
     <script>
-    (function() {
-      var out = document.getElementById('out');
-      var shop = function(){ return document.getElementById('shop').value; };
-
-      function disp(msg){ out.style.color='#333'; out.style.fontStyle='normal'; out.innerText=msg; }
-
-      function callAPI(url){
-        disp('Traitement en cours... (30-60s possible)');
-        var sep = url.indexOf('?') >= 0 ? '&' : '?';
-        fetch(url + sep + 'shop=' + shop())
-          .then(function(r){ return r.json(); })
-          .then(function(d){ disp(JSON.stringify(d, null, 2)); })
-          .catch(function(e){ disp('Erreur: ' + e); });
-      }
-
-      function getActions(){
-        var a=[];
-        var d=document.getElementById('act-desc'); if(d&&d.checked) a.push('description');
-        var v=document.getElementById('act-var');  if(v&&v.checked) a.push('variants');
-        var m=document.getElementById('act-meta'); if(m&&m.checked) a.push('metafields');
-        return a.join(',');
-      }
-
-      function getOptExtras(){
-        var fc=document.getElementById('force-collection'); fc=fc?fc.value.trim():'';
-        var te=document.getElementById('tags-extra'); te=te?te.value.trim():'';
-        return (fc?'&force_collection='+encodeURIComponent(fc):'')+(te?'&tags_extra='+encodeURIComponent(te):'');
-      }
-
-      function getBatchExtras(){
-        var fc=document.getElementById('batch-force-collection'); fc=fc?fc.value.trim():'';
-        var te=document.getElementById('batch-tags-extra'); te=te?te.value.trim():'';
-        return (fc?'&force_collection='+encodeURIComponent(fc):'')+(te?'&tags_extra='+encodeURIComponent(te):'');
-      }
-
-      function on(id, fn){ var el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
-
-      on('btn-gmc-dry', function(){
-        disp('Verification en cours...');
-        fetch('/fix-gender?dry=true&shop='+shop()).then(function(r){return r.json();}).then(function(d1){
-          disp('Sexe:\n'+JSON.stringify(d1,null,2)+'\n\nVerification tranche age...');
-          fetch('/fix-age-group?dry=true&shop='+shop()).then(function(r){return r.json();}).then(function(d2){
-            disp('Sexe:\n'+JSON.stringify(d1,null,2)+'\n\nTranche age:\n'+JSON.stringify(d2,null,2));
-          }).catch(function(e){disp('Erreur age-group: '+e);});
-        }).catch(function(e){disp('Erreur gender: '+e);});
-      });
-
-      on('btn-gmc-apply', function(){
-        disp('Correction en cours...');
-        fetch('/fix-gender?shop='+shop()).then(function(r){return r.json();}).then(function(d1){
-          disp('Sexe corrige:\n'+JSON.stringify(d1,null,2)+'\n\nCorrection tranche age...');
-          fetch('/fix-age-group?shop='+shop()).then(function(r){return r.json();}).then(function(d2){
-            disp('Sexe corrige:\n'+JSON.stringify(d1,null,2)+'\n\nTranche age corrigee:\n'+JSON.stringify(d2,null,2));
-          }).catch(function(e){disp('Erreur age-group: '+e);});
-        }).catch(function(e){disp('Erreur gender: '+e);});
-      });
-
-      on('btn-fix-tags',    function(){ callAPI('/fix-tags'); });
-      on('btn-fix-seo',     function(){ callAPI('/fix-seo'); });
-      on('btn-disc-dry',    function(){ callAPI('/fix-disclaimers?dry=true'); });
-      on('btn-disc-apply',  function(){
-        if(!confirm('Ajouter les disclaimers manquants ?')) return;
-        callAPI('/fix-disclaimers?dry=false');
-      });
-      on('btn-export-json', function(){ window.open('/export-products?format=json&shop='+shop(),'_blank'); });
-      on('btn-export-csv',  function(){ window.open('/export-products?format=csv&shop='+shop(),'_blank'); });
-
-      on('btn-opt-dry', function(){
-        var pid=document.getElementById('product-id').value.trim();
-        if(!pid){alert('Entre un ID produit Shopify !');return;}
-        callAPI('/optimize-product?id='+pid+'&dry=true&actions='+getActions()+getOptExtras());
-      });
-      on('btn-opt-apply', function(){
-        var pid=document.getElementById('product-id').value.trim();
-        if(!pid){alert('Entre un ID produit Shopify !');return;}
-        if(!confirm('Appliquer sur ce produit ?')) return;
-        callAPI('/optimize-product?id='+pid+'&dry=false&actions='+getActions()+getOptExtras());
-      });
-      on('btn-batch-dry', function(){
-        var f=document.getElementById('batch-filter').value;
-        var l=document.getElementById('batch-limit').value;
-        callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=true&actions='+getActions()+getBatchExtras());
-      });
-      on('btn-batch-apply', function(){
-        var f=document.getElementById('batch-filter').value;
-        var l=document.getElementById('batch-limit').value;
-        if(!confirm('Appliquer sur '+l+' produits ?')) return;
-        callAPI('/optimize-batch?filter='+f+'&limit='+l+'&dry=false&actions='+getActions()+getBatchExtras());
-      });
-      on('btn-append-dry', function(){
-        var phrase=document.getElementById('append-phrase').value.trim();
-        var filtre=document.getElementById('append-filter').value;
-        if(!phrase){alert('Entre une phrase.');return;}
-        callAPI('/append-to-all?dry=true&filter='+filtre+'&phrase='+encodeURIComponent(phrase));
-      });
-      on('btn-append-apply', function(){
-        var phrase=document.getElementById('append-phrase').value.trim();
-        var filtre=document.getElementById('append-filter').value;
-        if(!phrase){alert('Entre une phrase.');return;}
-        if(!confirm('Appliquer a tous les produits ?')) return;
-        callAPI('/append-to-all?dry=false&filter='+filtre+'&phrase='+encodeURIComponent(phrase));
-      });
-
+    (function(){
       var shopEl=document.getElementById('shop');
       if(shopEl) shopEl.addEventListener('input',function(){
         var btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;
       });
-
     })();
     </script></body></html>"""
     resp = make_response(html)
