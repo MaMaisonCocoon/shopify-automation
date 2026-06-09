@@ -916,7 +916,7 @@ def index():
 
     <script>
     document.getElementById('shop').addEventListener('input',function(){
-      document.getElementById('oauthBtn').href='/auth?shop='+this.value;});
+      const btn=document.getElementById('oauthBtn'); if(btn) btn.href='/auth?shop='+this.value;});
     function getActions(){
       const a=[];
       if(document.getElementById('act-desc').checked) a.push('description');
