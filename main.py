@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.8"
+VERSION       = "2.21.9"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -956,7 +956,6 @@ def callback():
     <br><a href="/" style="background:#8B4513;color:white;padding:10px 20px;border-radius:6px;text-decoration:none">← Retour</a>"""
 
 @app.route("/fix-gender")
-@require_auth
 def fix_gender():
     token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -996,7 +995,6 @@ def fix_gender():
     return jsonify({"action": "fix-gender", "total": len(products), "updated": updated, "errors": errors, "dry_run": dry})
 
 @app.route("/fix-age-group")
-@require_auth
 def fix_age_group():
     token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1029,7 +1027,6 @@ def fix_age_group():
 
 
 @app.route("/fix-prices")
-@require_auth
 def fix_prices():
     token = SHOPIFY_TOKEN
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1064,7 +1061,6 @@ def fix_prices():
                     "updated": updated, "skipped": skipped, "dry_run": dry})
 
 @app.route("/fix-tags")
-@require_auth
 def fix_tags():
     token = SHOPIFY_TOKEN
     shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1104,7 +1100,6 @@ def fix_tags():
     return jsonify({"action": "fix-tags", "total": len(products), "updated": updated, "dry_run": dry})
 
 @app.route("/fix-seo")
-@require_auth
 def fix_seo():
     import re
     token = SHOPIFY_TOKEN
@@ -1207,7 +1202,6 @@ DISCLAIMER_COULEUR = "<p><em>Remarque : En raison des conditions de prise de vue
 DISCLAIMER_DIMENSIONS = '<p><em>Les dimensions et tailles indiquées sont données à titre indicatif. De légères variations peuvent exister en raison du processus de fabrication et des méthodes de mesure.</em></p>'
 
 @app.route("/fix-disclaimers")
-@require_auth
 def fix_disclaimers():
     """Vérifie et ajoute les deux phrases disclaimer sur tous les produits qui ne les ont pas."""
     token = SHOPIFY_TOKEN
@@ -1262,7 +1256,6 @@ def fix_disclaimers():
 
 
 @app.route("/append-to-all")
-@require_auth
 def append_to_all():
     """Ajoute un bloc HTML personnalisé à la fin de toutes les descriptions."""
     token = SHOPIFY_TOKEN
@@ -1316,7 +1309,6 @@ def append_to_all():
 
 
 @app.route("/export-products")
-@require_auth
 def export_products():
     import csv, io
     from flask import Response
@@ -1365,7 +1357,6 @@ def version():
     return jsonify({"version": VERSION, "date": VERSION_DATE, "label": VERSION_LABEL})
 
 @app.route("/optimize-form")
-@require_auth
 def optimize_form():
     """Interface web pour lancer une optimisation produit sans construire l'URL à la main"""
     token = SHOPIFY_TOKEN
@@ -1463,7 +1454,6 @@ async function lancer() {{
 # ─── NOUVELLES ROUTES — OPTIMISATION FICHES PRODUITS ───────────────────────────
 
 @app.route("/optimize-product")
-@require_auth
 def optimize_product():
     token = SHOPIFY_TOKEN
     shop            = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
@@ -1682,7 +1672,6 @@ def optimize_product():
 
 
 @app.route("/optimize-batch")
-@require_auth
 def optimize_batch():
     token = SHOPIFY_TOKEN
     shop    = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
