@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.21.6"
+VERSION       = "2.26.7"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -115,6 +115,8 @@ def get_all_products(token, shop):
     while url:
         res = requests.get(url, headers=headers)
         data = res.json()
+        if "errors" in data:
+            raise Exception(f"Shopify API error: {data['errors']}")
         products.extend(data.get("products", []))
         link = res.headers.get("Link", "")
         url = None
@@ -1029,7 +1031,7 @@ def fix_age_group():
 @app.route("/fix-prices")
 @require_auth
 def fix_prices():
-    token  = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     margin = float(request.args.get("margin", "2.5"))
     dry    = request.args.get("dry", "true") == "true"
@@ -1263,7 +1265,7 @@ def fix_disclaimers():
 @require_auth
 def append_to_all():
     """Ajoute un bloc HTML personnalisé à la fin de toutes les descriptions."""
-    token  = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     dry    = request.args.get("dry", "true") == "true"
     phrase = request.args.get("phrase", "").strip()
@@ -1318,7 +1320,7 @@ def append_to_all():
 def export_products():
     import csv, io
     from flask import Response
-    token  = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     format = request.args.get("format", "json")
     if not token:
@@ -1463,7 +1465,7 @@ async function lancer() {{
 @app.route("/optimize-product")
 @require_auth
 def optimize_product():
-    token           = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop            = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     pid             = request.args.get("id", "")
     dry             = request.args.get("dry", "true") == "true"
@@ -1682,7 +1684,7 @@ def optimize_product():
 @app.route("/optimize-batch")
 @require_auth
 def optimize_batch():
-    token   = request.args.get("token", "")
+    token = SHOPIFY_TOKEN
     shop    = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
     filtre  = request.args.get("filter", "no-description")
     limit   = int(request.args.get("limit", "10"))
