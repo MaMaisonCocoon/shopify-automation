@@ -838,8 +838,18 @@ def index():
 
     <div class="card"><h2>🛠️ Actions catalogue</h2>
     <div class="section-title">Métadonnées Google Merchant (GMC)</div>
-    <button id="btn-gmc-dry" class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Verification...';var s=document.getElementById('shop').value;fetch('/fix-gender?dry=true&shop='+s).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier sexe + tranche d'âge</button>
-    <button id="btn-gmc-apply" class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Correction...';var s=document.getElementById('shop').value;fetch('/fix-gender?shop='+s).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Corriger métadonnées GMC</button>
+    <div style="margin-bottom:6px">
+    <strong style="font-size:0.85rem;color:#666">Tout le catalogue :</strong><br>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-gmc-all?dry=true&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Tout vérifier GMC</button>
+    <button class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-gmc-all?dry=false&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Tout corriger GMC</button>
+    </div>
+    <div style="margin-top:8px">
+    <strong style="font-size:0.85rem;color:#666">Par catégorie :</strong><br>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-gender?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">♀ Sexe</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-age-group?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👶 Âge</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-color?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🎨 Couleur</button>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-size?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">📐 Taille</button>
+    </div>
     <hr>
     <div class="section-title">Tags & Audit</div>
     <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='...';fetch('/fix-tags?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — verifier les logs Render (token Shopify invalide ?)':'Session expiree — allez sur /logout puis reconnectez-vous';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🏷️ Optimiser tags</button>
@@ -1032,7 +1042,214 @@ def fix_age_group():
     return jsonify({"action": "fix-age-group", "total": len(products), "updated": updated, "errors": errors, "dry_run": dry})
 
 
-@app.route("/fix-prices")
+@app.route("/fix-gmc-all")
+def fix_gmc_all():
+    token = SHOPIFY_TOKEN
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "false") == "true"
+    if not token:
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    NOMS_COULEUR = {"couleur", "color", "colour"}
+    NOMS_TAILLE  = {"taille", "size", "pointure", "hauteur", "longueur"}
+    VALEURS_VALIDES_GENDER = ["male", "female", "unisex"]
+
+    gender_updated = age_updated = color_updated = size_updated = errors = 0
+
+    for product in products:
+        pid = product["id"]
+        meta_res = requests.get(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token})
+        metafields = meta_res.json().get("metafields", [])
+        mf_map = {m["key"]: m for m in metafields if m.get("namespace") == "google"}
+
+        to_set = []
+
+        # Gender
+        gm = mf_map.get("gender")
+        if not gm or gm.get("value", "").lower() not in VALEURS_VALIDES_GENDER:
+            new_val = detecter_genre(product.get("title",""), product.get("tags",""))
+            if gm and not dry:
+                requests.put(f"https://{shop}/admin/api/2026-04/products/{pid}/metafields/{gm['id']}.json",
+                    headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                    json={"metafield": {"id": gm["id"], "value": new_val, "type": "single_line_text_field"}})
+            else:
+                to_set.append({"namespace": "google", "key": "gender", "value": new_val, "type": "single_line_text_field"})
+            gender_updated += 1
+
+        # Age group
+        if "age_group" not in mf_map:
+            to_set.append({"namespace": "google", "key": "age_group", "value": "adult", "type": "single_line_text_field"})
+            age_updated += 1
+
+        # Color
+        if "color" not in mf_map:
+            options = product.get("options", [])
+            couleurs = []
+            for opt in options:
+                if opt.get("name", "").lower() in NOMS_COULEUR:
+                    for val in opt.get("values", []):
+                        if val and val not in couleurs:
+                            couleurs.append(val)
+            if couleurs:
+                to_set.append({"namespace": "google", "key": "color", "value": " / ".join(couleurs[:3]), "type": "single_line_text_field"})
+                color_updated += 1
+
+        # Size
+        if "size" not in mf_map:
+            options = product.get("options", [])
+            tailles = []
+            for opt in options:
+                if opt.get("name", "").lower() in NOMS_TAILLE:
+                    for val in opt.get("values", []):
+                        if val and val not in tailles:
+                            tailles.append(val)
+            if tailles:
+                if len(tailles) == 1 and tailles[0].lower() in {"one size", "taille unique", "unique"}:
+                    size_val = "Taille unique"
+                else:
+                    size_val = tailles[0]
+                to_set.append({"namespace": "google", "key": "size", "value": size_val, "type": "single_line_text_field"})
+                size_updated += 1
+
+        if to_set and not dry:
+            for mf in to_set:
+                res = requests.post(
+                    f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+                    headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                    json={"metafield": mf})
+                if res.status_code not in [200, 201]:
+                    errors += 1
+            time.sleep(0.3)
+
+    return jsonify({
+        "action": "fix-gmc-all",
+        "total": len(products),
+        "gender_updated": gender_updated,
+        "age_group_updated": age_updated,
+        "color_updated": color_updated,
+        "size_updated": size_updated,
+        "errors": errors,
+        "dry_run": dry
+    })
+
+
+
+def fix_color():
+    token = SHOPIFY_TOKEN
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "false") == "true"
+    if not token:
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    updated = skipped = errors = 0
+    NOMS_COULEUR = {"couleur", "color", "colour"}
+    for product in products:
+        pid = product["id"]
+        meta_res = requests.get(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token})
+        metafields = meta_res.json().get("metafields", [])
+        if any(m.get("key") == "color" and m.get("namespace") == "google" for m in metafields):
+            skipped += 1
+            continue
+        # Extraire les couleurs uniques depuis les variants
+        couleurs = []
+        for v in product.get("variants", []):
+            for opt in v.get("option_values", []) if "option_values" in v else []:
+                if opt.get("presentation_name", "").lower() in NOMS_COULEUR:
+                    val = opt.get("name", "").strip()
+                    if val and val not in couleurs:
+                        couleurs.append(val)
+        # Fallback : lire via les options du produit
+        if not couleurs:
+            options = product.get("options", [])
+            for opt in options:
+                if opt.get("name", "").lower() in NOMS_COULEUR:
+                    for val in opt.get("values", []):
+                        if val and val not in couleurs:
+                            couleurs.append(val)
+        if not couleurs:
+            skipped += 1
+            continue
+        color_value = " / ".join(couleurs[:3])  # Google accepte max 3 couleurs
+        if dry:
+            updated += 1
+            continue
+        res = requests.post(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+            json={"metafield": {"namespace": "google", "key": "color", "value": color_value, "type": "single_line_text_field"}})
+        if res.status_code in [200, 201]:
+            updated += 1
+        else:
+            errors += 1
+        time.sleep(0.3)
+    return jsonify({"action": "fix-color", "total": len(products), "updated": updated, "skipped": skipped, "errors": errors, "dry_run": dry})
+
+
+@app.route("/fix-size")
+def fix_size():
+    token = SHOPIFY_TOKEN
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "false") == "true"
+    if not token:
+        return jsonify({"error": "Token non configuré — vérifier SHOPIFY_TOKEN dans Render"}), 500
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    updated = skipped = errors = 0
+    NOMS_TAILLE = {"taille", "size", "pointure", "hauteur", "longueur"}
+    for product in products:
+        pid = product["id"]
+        meta_res = requests.get(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token})
+        metafields = meta_res.json().get("metafields", [])
+        if any(m.get("key") == "size" and m.get("namespace") == "google" for m in metafields):
+            skipped += 1
+            continue
+        # Extraire les tailles uniques depuis les options du produit
+        tailles = []
+        options = product.get("options", [])
+        for opt in options:
+            if opt.get("name", "").lower() in NOMS_TAILLE:
+                for val in opt.get("values", []):
+                    if val and val not in tailles:
+                        tailles.append(val)
+        if not tailles:
+            skipped += 1
+            continue
+        # Si taille unique → "Taille unique", sinon première valeur représentative
+        if len(tailles) == 1 and tailles[0].lower() in {"one size", "taille unique", "unique"}:
+            size_value = "Taille unique"
+        else:
+            size_value = tailles[0]  # Valeur représentative (Google veut 1 valeur au niveau produit)
+        if dry:
+            updated += 1
+            continue
+        res = requests.post(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+            json={"metafield": {"namespace": "google", "key": "size", "value": size_value, "type": "single_line_text_field"}})
+        if res.status_code in [200, 201]:
+            updated += 1
+        else:
+            errors += 1
+        time.sleep(0.3)
+    return jsonify({"action": "fix-size", "total": len(products), "updated": updated, "skipped": skipped, "errors": errors, "dry_run": dry})
+
+
+
 def fix_prices():
     token = SHOPIFY_TOKEN
     shop   = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
