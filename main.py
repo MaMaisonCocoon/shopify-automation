@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 app = Flask(__name__)
 
 # ─── VERSION ────────────────────────────────────────────────────────────────────
-VERSION       = "2.24"
+VERSION       = "2.21"
 from datetime import date as _date
 VERSION_DATE  = _date.today().strftime("%d/%m/%Y")
 VERSION_LABEL = f"v{VERSION} — {VERSION_DATE}"
@@ -581,6 +581,7 @@ STRUCTURE_MENU = {
     "Accessoires Cocooning": {
         "tag_general": "accessoires cocooning",
         "sous_menus": {
+            "Bougies Cocoon":      ["bougie cocoon", "bougies cocoon"],
             "Bouillotte":           ["bouillotte"],
             "Chauffe Pieds-Mains":  ["chauffe pieds", "chauffe mains"],
             "Couverture chauffante":["couverture chauffante"],
