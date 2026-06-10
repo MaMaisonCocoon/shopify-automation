@@ -672,12 +672,16 @@ def detecter_collection(titre_fr, tags_fr, categorie, collections):
     return collections_assignees, tags_menu
 
 def calculer_prix(prix_actuel):
-    """Calcule le prix final : floor(prix_dsers + 2) + 0.99
-    DSers a déjà appliqué × 2.5, on ajoute 2€ et on arrondit au .99"""
+    """Calcule le prix final avec seuil a 30EUR :
+    - Prix DSers <= 30EUR : floor(prix + 2) + 0.99  (marge transport incluse)
+    - Prix DSers >  30EUR : floor(prix) + 0.99       (sans les 2EUR, marge suffisante)
+    DSers a deja applique x 2.5."""
     try:
         prix = float(prix_actuel)
-        prix_plus_deux = prix + 2
-        prix_final = math.floor(prix_plus_deux) + 0.99
+        if prix > 30:
+            prix_final = math.floor(prix) + 0.99
+        else:
+            prix_final = math.floor(prix + 2) + 0.99
         return prix_final
     except:
         return None
@@ -1902,7 +1906,7 @@ def optimize_product():
                 "variant": v.get("option1","") or v.get("title",""),
                 "prix_dsers": v.get("price",""),
                 "prix_final": str(nouveau_prix) + "€" if nouveau_prix else "erreur",
-                "calcul": f"floor({float(v.get('price',0)):.2f} + 2) + 0.99"
+                "calcul": f"seuil {'<= 30' if float(v.get('price',0)) <= 30 else '> 30'} => floor({float(v.get('price',0)):.2f}{'+ 2' if float(v.get('price',0)) <= 30 else ''}) + 0.99"
             })
         result["prix_simules"] = prix_simules
         if fiche.get("quantite_incertaine"):
