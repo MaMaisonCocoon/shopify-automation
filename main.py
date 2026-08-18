@@ -830,7 +830,7 @@ def index():
     pre{background:#f0f0f0;padding:12px;border-radius:6px;overflow:auto;font-size:12px;max-height:400px}
     hr{border:none;border-top:1px solid #e0d0c0;margin:14px 0}
     </style></head><body>
-    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.18 — 09/06/2026</span></h1>
+    <h1>🕯️ Shopify Automation — Ma Maison Cocoon™ <span style="font-size:0.65rem;font-weight:normal;color:#aaa;vertical-align:middle">v2.26 — 18/08/2026</span></h1>
     <div class="card warn"><strong>⚡ Mode d'emploi :</strong><br>
     Pour les nouvelles actions : commence toujours par <strong>Simuler</strong> avant d'appliquer
     &nbsp;|&nbsp; <a href="/logout" style="color:#8B4513">🔒 Déconnexion</a></div>
@@ -854,6 +854,18 @@ def index():
     <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-age-group?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">👶 Âge</button>
     <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-color?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🎨 Couleur</button>
     <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-size?shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500 — logs Render':'Session expiree — /logout';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">📐 Taille</button>
+    </div>
+    <hr>
+    <div class="section-title">Fiches produits — SEO & Harmonisation</div>
+    <div style="margin-bottom:6px">
+    <strong style="font-size:0.85rem;color:#666">Meta titres :</strong><br>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-meta-titles?dry=true&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500':'Session expiree';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier meta titres</button>
+    <button class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/fix-meta-titles?dry=false&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500':'Session expiree';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Corriger meta titres</button>
+    </div>
+    <div style="margin-top:8px">
+    <strong style="font-size:0.85rem;color:#666">Descriptions (h1→h2, bullets, enrichissement Haiku) :</strong><br>
+    <button class="btn" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement...';fetch('/harmonize-descriptions?dry=true&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500':'Session expiree';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">🔎 Vérifier descriptions</button>
+    <button class="btn btn-green" onclick="(function(){var o=document.getElementById('out');o.style.color='#333';o.style.fontStyle='normal';o.innerText='Traitement... (2-3 min)';fetch('/harmonize-descriptions?dry=false&shop='+document.getElementById('shop').value).then(function(r){var status=r.status;return r.text().then(function(t){return {s:status,t:t};});}).then(function(x){if(x.t.indexOf('<')===0){o.style.color='red';o.innerText=x.s===500?'Erreur serveur 500':'Session expiree';return;}try{o.style.color='#333';o.innerText=JSON.stringify(JSON.parse(x.t),null,2);}catch(e){o.innerText=x.t;}}).catch(function(e){o.innerText='Err:'+e;});})()">✅ Harmoniser descriptions</button>
     </div>
     <hr>
     <div class="section-title">Tags & Audit</div>
@@ -1252,6 +1264,142 @@ def fix_size():
             errors += 1
         time.sleep(0.3)
     return jsonify({"action": "fix-size", "total": len(products), "updated": updated, "skipped": skipped, "errors": errors, "dry_run": dry})
+
+
+
+
+@app.route("/fix-meta-titles")
+def fix_meta_titles():
+    """Ajoute le title_tag manquant sur tous les produits actifs."""
+    token = SHOPIFY_TOKEN
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "false") == "true"
+    if not token:
+        return jsonify({"error": "Token non configure"}), 500
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    updated = skipped = errors = 0
+    suffix = " | Ma Maison Cocoon™"
+
+    for product in products:
+        pid = product["id"]
+        meta_res = requests.get(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token})
+        metafields = meta_res.json().get("metafields", [])
+        has_title_tag = any(m.get("key") == "title_tag" and m.get("namespace") == "global" for m in metafields)
+        if has_title_tag:
+            skipped += 1
+            continue
+        titre = product.get("title", "").strip()
+        max_len = 60 - len(suffix)
+        titre_court = titre[:max_len].rsplit(" ", 1)[0] if len(titre) > max_len else titre
+        title_tag = titre_court + suffix
+        if dry:
+            updated += 1
+            continue
+        res = requests.post(
+            f"https://{shop}/admin/api/2026-04/products/{pid}/metafields.json",
+            headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+            json={"metafield": {"namespace": "global", "key": "title_tag",
+                                "value": title_tag, "type": "single_line_text_field"}})
+        if res.status_code in [200, 201]:
+            updated += 1
+        else:
+            errors += 1
+        time.sleep(0.25)
+    return jsonify({"action": "fix-meta-titles", "total": len(products),
+                    "updated": updated, "skipped": skipped,
+                    "errors": errors, "dry_run": dry})
+
+
+@app.route("/harmonize-descriptions")
+def harmonize_descriptions():
+    """Harmonise le formatage HTML et enrichit les descriptions trop courtes via Claude Haiku."""
+    token = SHOPIFY_TOKEN
+    shop  = request.args.get("shop", "ma-maison-cocoon.myshopify.com")
+    dry   = request.args.get("dry", "false") == "true"
+    min_chars = int(request.args.get("min_chars", "800"))
+    if not token:
+        return jsonify({"error": "Token non configure"}), 500
+    try:
+        products = get_all_products(token, shop)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    harmonized = enriched = skipped = errors = 0
+    DISCLAIMER = (
+        '<hr style="border:none;border-top:1px solid #f0e6dc;margin:20px 0;">'
+        '<p><em>Remarque : En raison des conditions de prise de vue et des variations d’affichage '
+        'selon les écrans, les couleurs peuvent légèrement différer de la réalité.</em></p>'
+        '<p><em>Les dimensions et tailles indiquées sont données à titre indicatif. '
+        'De légères variations peuvent exister en raison du processus de fabrication '
+        'et des méthodes de mesure.</em></p>'
+    )
+
+    for product in products:
+        pid = product["id"]
+        titre = product.get("title", "")
+        desc_html = product.get("body_html", "") or ""
+        desc_clean = re.sub(r"<h1([^>]*)>", r"<h2\1>", desc_html)
+        desc_clean = re.sub(r"</h1>", "</h2>", desc_clean)
+        if "<hr" not in desc_clean:
+            desc_clean = desc_clean.rstrip() + "\n" + DISCLAIMER
+        text_only = re.sub(r"<[^>]+>", "", desc_clean).strip()
+        needs_enrichment = len(text_only) < min_chars
+
+        if needs_enrichment and not dry and ANTHROPIC_API_KEY:
+            try:
+                prompt = (
+                    f"Tu es rédacteur pour Ma Maison Cocoon™, boutique cocooning française.\n"
+                    f"Réécris et enrichis la description HTML de ce produit : '{titre}'\n\n"
+                    f"Description actuelle :\n{desc_html[:1500]}\n\n"
+                    f"Règles STRICTES :\n"
+                    f"- Balises autorisées UNIQUEMENT : <h2>, <p>, <ul>, <li>, <strong>, <em>, <hr>\n"
+                    f"- Interdits : <h1>, tirets em (--), le mot artisanal\n"
+                    f"- Structure : accroche émotionnelle, liste <ul> de 4-5 points forts avec <strong>,\n"
+                    f"  utilisations idéales, entretien, puis le disclaimer suivant EXACTEMENT :\n"
+                    f"{DISCLAIMER}\n"
+                    f"- Ton chaud et cocooning. Minimum 800 caractères de texte.\n"
+                    f"- Réponds UNIQUEMENT avec le HTML complet, sans preamble ni backticks."
+                )
+                haiku_res = requests.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={"x-api-key": ANTHROPIC_API_KEY,
+                             "anthropic-version": "2023-06-01",
+                             "Content-Type": "application/json"},
+                    json={"model": "claude-haiku-4-5", "max_tokens": 1200,
+                          "messages": [{"role": "user", "content": prompt}]},
+                    timeout=30)
+                if haiku_res.status_code == 200:
+                    new_html = haiku_res.json()["content"][0]["text"].strip()
+                    if "<p>" in new_html or "<ul>" in new_html:
+                        desc_clean = new_html
+                        enriched += 1
+            except Exception:
+                pass
+
+        if desc_clean != desc_html:
+            if not dry:
+                upd = requests.put(
+                    f"https://{shop}/admin/api/2026-04/products/{pid}.json",
+                    headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"},
+                    json={"product": {"id": pid, "body_html": desc_clean}})
+                if upd.status_code == 200:
+                    harmonized += 1
+                else:
+                    errors += 1
+            else:
+                harmonized += 1
+        else:
+            skipped += 1
+        time.sleep(0.3)
+    return jsonify({"action": "harmonize-descriptions", "total": len(products),
+                    "harmonized": harmonized, "enriched": enriched,
+                    "skipped": skipped, "errors": errors, "dry_run": dry})
 
 
 
